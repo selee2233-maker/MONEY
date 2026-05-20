@@ -913,7 +913,7 @@ function render(){renderSum();renderInc();renderExp();renderInvest();}
 
 /* PWA 서비스워커 등록 */
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/sw.js').catch(function(){});
+  navigator.serviceWorker.register('./sw.js').catch(function(){});
 }
 </script>
 </body>
