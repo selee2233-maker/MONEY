@@ -1,0 +1,13 @@
+{
+  "name": "자금관리",
+  "short_name": "자금관리",
+  "description": "개인 자금 관리 앱",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f2ebe0",
+  "theme_color": "#1c1006",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
