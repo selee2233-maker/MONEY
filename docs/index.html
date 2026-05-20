@@ -245,6 +245,9 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   .sum-cards{grid-template-columns:repeat(2,1fr)}
   .header{padding:0 16px}
   .summary-bar,.content,.invest-section{padding-left:16px;padding-right:16px}
+  /* 입력창 세로로 쌓기 - 밀림 방지 */
+  .add-row{flex-direction:column;gap:6px}
+  .inp-amt{max-width:100% !important;text-align:left}
   /* 헤더에서 버튼 숨기기 */
   #syncBtn,.hbtn{display:none !important}
   /* 하단 고정 바 */
@@ -914,6 +917,21 @@ function renderInvSide(type){
   }).join('');
 }
 function render(){renderSum();renderInc();renderExp();renderInvest();}
+
+/* iOS 키보드 레이아웃 밀림 방지 */
+document.addEventListener('focusin', function(){
+  setTimeout(function(){
+    window.scrollTo(0, window.scrollY);
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+  }, 100);
+});
+document.addEventListener('focusout', function(){
+  setTimeout(function(){
+    document.documentElement.scrollLeft = 0;
+    document.body.scrollLeft = 0;
+  }, 100);
+});
 
 /* PWA 서비스워커 등록 */
 if('serviceWorker' in navigator){
