@@ -313,6 +313,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
         <button class="num-btn confirm" onclick="pinConfirm()">확인</button>
       </div>
       <div class="login-err" id="loginErr"></div>
+      <div style="margin-top:14px"><button onclick="resetPin()" style="background:none;border:none;font-size:13px;color:var(--text3);cursor:pointer;text-decoration:underline;font-family:inherit">PIN 초기화</button></div>
     </div>
   </div>
 </div>
@@ -634,6 +635,15 @@ function doShowApp(){
   initMonthSelects();
   render();
   startSync();
+}
+function resetPin(){
+  if(!confirm('PIN을 초기화하면 새로 설정해야 합니다. 계속할까요?')) return;
+  localStorage.removeItem('fm_pw');
+  isSetup=true;
+  document.getElementById('loginTitle').textContent='PIN 설정';
+  document.getElementById('loginSub').textContent='사용할 4자리 PIN을 설정해주세요';
+  document.getElementById('loginErr').textContent='';
+  PIN=''; updateDots();
 }
 function lockApp(){
   if(syncUnsub){syncUnsub();syncUnsub=null;}
