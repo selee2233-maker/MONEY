@@ -26,8 +26,8 @@ Firebase 콘솔(https://console.firebase.google.com)에서:
 
 ```json
 {
-  "projects": {
-    "default": "your-actual-project-id"
+  cd /tmp/MONEY
+# YOUR_PROJECT_ID를 실제 Firebase 프로젝트 ID로 교체
   }
 }
 ```
@@ -37,6 +37,7 @@ Firebase 콘솔(https://console.firebase.google.com)에서:
 ```bash
 npm install -g firebase-tools
 firebase login
+cd /tmp/MONEY
 firebase deploy --only hosting
 ```
 
