@@ -327,10 +327,10 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
         <div class="header-title">자금관리</div>
       </div>
       <div class="header-btns">
-        <div class="sync-badge" id="syncBadge" title="동기화 상태">
+        <button class="hbtn" id="syncBtn" onclick="openSyncModal()" style="display:flex;align-items:center;gap:6px">
           <div class="sync-dot loading" id="syncDot"></div>
-          <span class="sync-text" id="syncText">연결 중</span>
-        </div>
+          <span id="syncText">연결 중</span>
+        </button>
         <button class="hbtn" onclick="openPwModal()">비밀번호 변경</button>
         <button class="hbtn" onclick="lockApp()">잠금</button>
       </div>
@@ -450,6 +450,26 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   </div>
 </div>
 
+<!-- 동기화 모달 -->
+<div class="modal-bg" id="syncModal" onclick="if(event.target===this)closeSyncModal()">
+  <div class="modal">
+    <div class="modal-title">🔗 동기화 설정</div>
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--surface2);border-radius:var(--r-sm);margin-bottom:16px">
+      <div id="syncModalDot" style="width:8px;height:8px;border-radius:50%;background:#fbbf24;flex-shrink:0"></div>
+      <span id="syncModalStatus" style="font-size:13px;color:var(--text2);font-weight:500">연결 중</span>
+    </div>
+    <div class="modal-lbl">동기화 코드</div>
+    <input class="modal-inp" id="syncModalCode" type="text" placeholder="동기화 코드 입력"
+      style="letter-spacing:normal" onkeydown="if(event.key==='Enter')applySyncCode()"/>
+    <div style="font-size:12px;color:var(--text3);margin-top:8px">모든 기기에서 같은 코드를 사용하세요</div>
+    <div class="modal-btns" style="margin-top:16px">
+      <button class="btn-cancel" onclick="closeSyncModal()">닫기</button>
+      <button class="btn-ok" onclick="applySyncCode()">적용</button>
+    </div>
+    <button onclick="manualSync();closeSyncModal();" style="width:100%;margin-top:10px;padding:10px;background:var(--surface2);color:var(--text2);border:1px solid var(--border);border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">지금 동기화</button>
+  </div>
+</div>
+
 <!-- 비밀번호 변경 모달 -->
 <div class="modal-bg" id="pwModal" onclick="if(event.target===this)closePwModal()">
   <div class="modal">
@@ -492,12 +512,36 @@ function initFirebase(config) {
 }
 
 function setSyncStatus(state) {
-  var dot = document.getElementById('syncDot');
+  var colors = {ok:'#4ade80', loading:'#fbbf24', err:'#f87171'};
+  var labels = {ok:'동기화됨', loading:'동기화 중', err:'오프라인'};
+  ['syncDot','syncModalDot'].forEach(function(id){
+    var el = document.getElementById(id);
+    if (!el) return;
+    el.className = 'sync-dot ' + state;
+    if (colors[state]) el.style.background = colors[state];
+  });
   var txt = document.getElementById('syncText');
-  if (!dot) return;
-  dot.className = 'sync-dot ' + state;
-  txt.textContent = state === 'ok' ? '동기화됨' : state === 'loading' ? '동기화 중' : '오프라인';
+  if (txt) txt.textContent = labels[state] || '동기화';
+  var ms = document.getElementById('syncModalStatus');
+  if (ms) ms.textContent = labels[state] || '';
 }
+function openSyncModal() {
+  document.getElementById('syncModalCode').value = syncCode || '';
+  document.getElementById('syncModal').classList.add('open');
+}
+function closeSyncModal() {
+  document.getElementById('syncModal').classList.remove('open');
+}
+function applySyncCode() {
+  var code = document.getElementById('syncModalCode').value.trim();
+  if (!code || code.length < 4) { alert('4자 이상 입력해주세요'); return; }
+  syncCode = code;
+  localStorage.setItem('fm_sync_code', syncCode);
+  if (syncUnsub) { syncUnsub(); syncUnsub = null; }
+  closeSyncModal();
+  startSync();
+}
+function manualSync() { saveToCloud(); }
 
 function startSync() {
   if (!db || !syncCode) return;
