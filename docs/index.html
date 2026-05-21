@@ -975,12 +975,12 @@ function renderExp(){
     +'<div class="exp-grp-hdr'+(danOpen?' open':'')+'" onclick="toggleExpGroup(\'단기\')">'
     +'<span class="exp-grp-arr">'+(danOpen?'▼':'▶')+'</span>'
     +'<span class="exp-grp-nm">단기</span>'
-    +'<div class="exp-grp-meta"><span class="exp-grp-sum">-'+fmt(danSum)+'</span><span class="exp-grp-cnt">'+danItems.length+'건</span></div>'
+    +'<span class="exp-grp-sum" style="margin-left:auto">-'+fmt(danSum)+'</span>'
     +'</div>'
     +'<div class="exp-grp-hdr'+(jangOpen?' open':'')+'" onclick="toggleExpGroup(\'장기\')">'
     +'<span class="exp-grp-arr">'+(jangOpen?'▼':'▶')+'</span>'
     +'<span class="exp-grp-nm">장기</span>'
-    +'<div class="exp-grp-meta"><span class="exp-grp-sum">-'+fmt(jangSum)+'</span><span class="exp-grp-cnt">'+jangItems.length+'건</span></div>'
+    +'<span class="exp-grp-sum" style="margin-left:auto">-'+fmt(jangSum)+'</span>'
     +'</div>'
     +'</div>';
   /* 단기 내용 */
