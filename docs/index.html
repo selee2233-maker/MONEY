@@ -101,34 +101,48 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 
 /* 요약 */
 /* ── 요약 섹션 ── */
-.summary-bar{padding:18px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
-/* 가용자금 상단 행 */
-.cas-base{display:flex;align-items:center;background:var(--surface2);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:10px;gap:2px}
-.cas-base-cell{flex:1;text-align:center;min-width:0}
-.cas-op{font-size:18px;color:var(--text3);font-weight:300;padding:0 4px;flex-shrink:0;line-height:1;margin-top:8px}
-.cas-lbl{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;letter-spacing:.2px}
-.inc-term-toggle{display:flex;background:var(--border);border-radius:6px;padding:2px;gap:1px;margin-bottom:5px;width:fit-content;margin-left:auto;margin-right:auto}
-.inc-term-btn{padding:3px 9px;border:none;background:none;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;font-family:inherit;border-radius:4px;transition:all .15s}
+.summary-bar{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+.cas-grid{display:grid;grid-template-columns:1fr 1px 120px 1px 1fr;background:var(--surface2);border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border)}
+.cas-divider{background:var(--border)}
+/* 왼쪽 컬럼 */
+.cas-left{padding:14px 16px;display:flex;flex-direction:column;gap:0}
+.cas-left-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+.cas-left-row:last-child{border-bottom:none}
+.cas-left-lbl{font-size:11px;font-weight:600;color:var(--text3);flex-shrink:0}
+.cas-left-val{font-size:14px;font-weight:700;color:var(--text);text-align:right}
+.cas-left-val.inc{color:var(--green)}
+.cas-left-val.avail{color:var(--gold)}
+.cas-inc-row{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid var(--border)}
+.cas-inc-top{display:flex;justify-content:space-between;align-items:center}
+/* 들어올돈 토글 */
+.inc-term-toggle{display:flex;background:var(--border2);border-radius:5px;padding:2px;gap:1px}
+.inc-term-btn{padding:2px 8px;border:none;background:none;font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;font-family:inherit;border-radius:3px;transition:all .15s}
 .inc-term-btn.on{background:var(--surface);color:var(--green);box-shadow:0 1px 2px rgba(50,30,5,0.1)}
-.cas-val{font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.cas-val.inc{color:var(--green)}
-.cas-val.avail{color:var(--gold);font-size:16px}
-/* 순위별 계산 행 */
-.cas-table{display:flex;flex-direction:column;gap:7px}
-.cas-row{display:flex;align-items:center;background:var(--surface2);border-radius:var(--r-sm);padding:11px 16px;gap:8px}
-.cas-tag{font-size:12px;font-weight:700;color:var(--text2);min-width:68px;flex-shrink:0}
-.cas-exp{font-size:13px;font-weight:600;color:var(--red);flex:1;text-align:right}
-.cas-arr{font-size:12px;color:var(--text3);flex-shrink:0}
-.cas-net{font-size:15px;font-weight:700;min-width:100px;text-align:right;flex-shrink:0}
-.cas-net.pos{color:var(--green)}
-.cas-net.neg{color:var(--red)}
-/* 구버전 호환용 (투자섹션 등에서 사용) */
+/* 가운데 순위 선택 컬럼 */
+.cas-mid{padding:12px 14px;display:flex;flex-direction:column;justify-content:space-around;gap:8px;background:var(--surface)}
+.pri-tog{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);cursor:pointer;transition:all .15s;font-family:inherit;width:100%;text-align:left}
+.pri-tog:hover{border-color:var(--border2)}
+.pri-tog.sel1{background:#fef2f2;border-color:#e8b8b8}
+.pri-tog.sel2{background:#fdf5e4;border-color:#ddc898}
+.pri-tog.sel3{background:var(--surface2);border-color:var(--border2)}
+.pri-chk{width:15px;height:15px;border-radius:3px;border:1.5px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;color:transparent;transition:all .15s}
+.pri-tog.sel1 .pri-chk{background:#b94040;border-color:#b94040;color:#fff}
+.pri-tog.sel2 .pri-chk{background:#b8933e;border-color:#b8933e;color:#fff}
+.pri-tog.sel3 .pri-chk{background:var(--text2);border-color:var(--text2);color:#fff}
+.pri-tog-lbl{font-size:13px;font-weight:700;color:var(--text2)}
+/* 오른쪽 결과 컬럼 */
+.cas-right{padding:14px 16px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;text-align:center;min-height:100px}
+.cas-empty{font-size:12px;color:var(--text3);line-height:1.6}
+.cas-r-lbl{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.3px;text-transform:uppercase}
+.cas-r-exp{font-size:13px;font-weight:600;color:var(--red);margin:2px 0 6px}
+.cas-r-net{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.cas-r-net.pos{color:var(--green)}
+.cas-r-net.neg{color:var(--red)}
+/* 구버전 호환용 */
 .sc-label{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px}
 .sc-val{font-size:18px;font-weight:400;color:var(--text);letter-spacing:-.3px}
 .sc-val.inc{color:var(--green)}
 .sc-val.exp{color:var(--red)}
-.sc-val.net-p{color:var(--gold);font-weight:500}
-.sc-val.net-n{color:var(--red);font-weight:500}
 
 /* 콘텐츠 */
 .content{padding:16px 20px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
@@ -419,46 +433,49 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 
   <!-- 요약 -->
   <div class="summary-bar">
-    <!-- 가용자금 계산 -->
-    <div class="cas-base">
-      <div class="cas-base-cell">
-        <div class="cas-lbl">현재잔액</div>
-        <div class="cas-val" id="sumBal">0</div>
-      </div>
-      <div class="cas-op">+</div>
-      <div class="cas-base-cell">
-        <div class="inc-term-toggle">
-          <button class="inc-term-btn on" id="incTermBtn단기" onclick="setIncTerm('단기',this)">단기</button>
-          <button class="inc-term-btn" id="incTermBtn장기" onclick="setIncTerm('장기',this)">장기</button>
-          <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">전체</button>
+    <div class="cas-grid">
+      <!-- 왼쪽: 자금 정보 -->
+      <div class="cas-left">
+        <div class="cas-left-row">
+          <span class="cas-left-lbl">현재잔액</span>
+          <span class="cas-left-val" id="sumBal">0</span>
         </div>
-        <div class="cas-val inc" id="sumInc">+0</div>
+        <div class="cas-inc-row">
+          <div class="cas-inc-top">
+            <span class="cas-left-lbl">들어올 돈</span>
+            <div class="inc-term-toggle">
+              <button class="inc-term-btn on" id="incTermBtn단기" onclick="setIncTerm('단기',this)">단기</button>
+              <button class="inc-term-btn" id="incTermBtn장기" onclick="setIncTerm('장기',this)">장기</button>
+              <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">전체</button>
+            </div>
+          </div>
+          <div class="cas-left-val inc" id="sumInc" style="text-align:right">+0</div>
+        </div>
+        <div class="cas-left-row">
+          <span class="cas-left-lbl">가용자금</span>
+          <span class="cas-left-val avail" id="sumAvail">0</span>
+        </div>
       </div>
-      <div class="cas-op">=</div>
-      <div class="cas-base-cell">
-        <div class="cas-lbl">가용자금</div>
-        <div class="cas-val avail" id="sumAvail">0</div>
+      <div class="cas-divider"></div>
+      <!-- 가운데: 순위 선택 -->
+      <div class="cas-mid">
+        <button class="pri-tog" id="priTog1" onclick="togglePriSel(1)">
+          <div class="pri-chk" id="priChk1"></div>
+          <span class="pri-tog-lbl">1순위</span>
+        </button>
+        <button class="pri-tog" id="priTog2" onclick="togglePriSel(2)">
+          <div class="pri-chk" id="priChk2"></div>
+          <span class="pri-tog-lbl">2순위</span>
+        </button>
+        <button class="pri-tog" id="priTog3" onclick="togglePriSel(3)">
+          <div class="pri-chk" id="priChk3"></div>
+          <span class="pri-tog-lbl">3순위</span>
+        </button>
       </div>
-    </div>
-    <!-- 순위별 잔액 -->
-    <div class="cas-table">
-      <div class="cas-row">
-        <span class="cas-tag">1순위</span>
-        <span class="cas-exp" id="casExp1">-0</span>
-        <span class="cas-arr">→</span>
-        <span class="cas-net pos" id="casNet1">0</span>
-      </div>
-      <div class="cas-row">
-        <span class="cas-tag">1+2순위</span>
-        <span class="cas-exp" id="casExp2">-0</span>
-        <span class="cas-arr">→</span>
-        <span class="cas-net pos" id="casNet2">0</span>
-      </div>
-      <div class="cas-row">
-        <span class="cas-tag">1+2+3순위</span>
-        <span class="cas-exp" id="casExp3">-0</span>
-        <span class="cas-arr">→</span>
-        <span class="cas-net pos" id="casNet3">0</span>
+      <div class="cas-divider"></div>
+      <!-- 오른쪽: 합산 결과 -->
+      <div class="cas-right" id="casRight">
+        <div class="cas-empty">순위 선택 시<br>합산 표시</div>
       </div>
     </div>
   </div>
@@ -843,6 +860,7 @@ var expense = JSON.parse(localStorage.getItem('fm_exp')||'[]');
 var invest  = JSON.parse(localStorage.getItem('fm_inv')||'{"in":[],"out":[]}');
 var bal     = parseInt(localStorage.getItem('fm_bal')||'0');
 var incTab='단기', incSumTerm='단기';
+var priSel={1:false,2:false,3:false};
 var addExpTerm='단기', addExpPri=1, priPickerTarget=null;
 var expOpenGroups={단기:true,장기:false};
 var curMonth=new Date().getMonth()+1;
@@ -887,6 +905,14 @@ function setTab(t,term,btn){
 function setIncTerm(term,btn){
   incSumTerm=term;
   ['단기','장기','전체'].forEach(function(x){document.getElementById('incTermBtn'+x).classList.toggle('on',x===term);});
+  renderSum();
+}
+function togglePriSel(pri){
+  priSel[pri]=!priSel[pri];
+  var tog=document.getElementById('priTog'+pri);
+  var chk=document.getElementById('priChk'+pri);
+  if(priSel[pri]){tog.classList.add('sel'+pri);chk.textContent='✓';}
+  else{tog.classList.remove('sel'+pri);chk.textContent='';}
   renderSum();
 }
 function setAddTerm(term,btn){
@@ -983,19 +1009,23 @@ function renderSum(){
   document.getElementById('sumBal').textContent=fmt(bal);
   document.getElementById('sumInc').textContent='+'+fmt(iAll);
   document.getElementById('sumAvail').textContent=fmt(avail);
-  /* 단기 나갈돈 순위별 누계 */
-  var e1=expense.filter(function(x){return x.term==='단기'&&x.priority===1;}).reduce(function(s,x){return s+x.amount;},0);
-  var e12=expense.filter(function(x){return x.term==='단기'&&(x.priority===1||x.priority===2);}).reduce(function(s,x){return s+x.amount;},0);
-  var e123=expense.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
-  function setRow(expId,netId,expAmt,net){
-    document.getElementById(expId).textContent='-'+fmt(expAmt);
-    var el=document.getElementById(netId);
-    el.textContent=(net>=0?'+':'')+fmt(net);
-    el.className='cas-net '+(net>=0?'pos':'neg');
-  }
-  setRow('casExp1','casNet1',e1,avail-e1);
-  setRow('casExp2','casNet2',e12,avail-e12);
-  setRow('casExp3','casNet3',e123,avail-e123);
+  /* 선택된 순위 합산 */
+  var anySelected=priSel[1]||priSel[2]||priSel[3];
+  var cr=document.getElementById('casRight');
+  if(!anySelected){cr.innerHTML='<div class="cas-empty">순위 선택 시<br>합산 표시</div>';return;}
+  var expTotal=expense.filter(function(x){
+    return x.term==='단기'&&priSel[x.priority||2];
+  }).reduce(function(s,x){return s+x.amount;},0);
+  var net=avail-expTotal;
+  var lbls=[];
+  if(priSel[1])lbls.push('1순위');
+  if(priSel[2])lbls.push('2순위');
+  if(priSel[3])lbls.push('3순위');
+  cr.innerHTML=
+    '<div class="cas-r-lbl">'+lbls.join('+')+' 나갈 돈</div>'
+    +'<div class="cas-r-exp">-'+fmt(expTotal)+'</div>'
+    +'<div class="cas-r-lbl">잔 액</div>'
+    +'<div class="cas-r-net '+(net>=0?'pos':'neg')+'">'+(net>=0?'+':'')+fmt(net)+'</div>';
 }
 function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
