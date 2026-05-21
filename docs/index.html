@@ -336,6 +336,25 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   .msb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
   /* 하단 바 높이만큼 패딩 */
   #appScreen{padding-bottom:70px}
+  /* 모바일 summary 3컬럼 */
+  .cas-grid{grid-template-columns:1fr 1px 76px 1px 1fr}
+  .cas-left{padding:10px 10px}
+  .cas-left-row{flex-direction:column;align-items:flex-start;gap:2px;padding:6px 0}
+  .cas-left-val{font-size:15px;text-align:left}
+  .cas-inc-lbl-txt{display:none}
+  .cas-inc-top{width:100%}
+  .inc-term-toggle{width:100%;justify-content:space-between}
+  .inc-term-btn{flex:1;text-align:center;padding:3px 4px;font-size:10px}
+  .cas-inc-row{padding:6px 0}
+  #sumInc{font-size:15px;margin-top:3px}
+  .cas-mid{padding:8px 6px;gap:5px}
+  .pri-tog{padding:7px 8px;gap:5px;border-radius:7px}
+  .pri-chk{width:13px;height:13px}
+  .pri-tog-lbl{font-size:12px}
+  .cas-right{padding:10px 10px;min-height:80px}
+  .cas-r-exp{font-size:15px;margin:1px 0 5px}
+  .cas-r-net{font-size:20px}
+  .cas-r-lbl{font-size:10px}
 }
 </style>
 </head>
@@ -443,11 +462,11 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
         </div>
         <div class="cas-inc-row">
           <div class="cas-inc-top">
-            <span class="cas-left-lbl">들어올 돈</span>
+            <span class="cas-left-lbl cas-inc-lbl-txt">들어올 돈</span>
             <div class="inc-term-toggle">
               <button class="inc-term-btn on" id="incTermBtn단기" onclick="setIncTerm('단기',this)">단기</button>
               <button class="inc-term-btn" id="incTermBtn장기" onclick="setIncTerm('장기',this)">장기</button>
-              <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">전체</button>
+              <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">합계</button>
             </div>
           </div>
           <div class="cas-left-val inc" id="sumInc" style="text-align:right">+0</div>
