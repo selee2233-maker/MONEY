@@ -106,7 +106,10 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 .cas-base{display:flex;align-items:center;background:var(--surface2);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:10px;gap:2px}
 .cas-base-cell{flex:1;text-align:center;min-width:0}
 .cas-op{font-size:18px;color:var(--text3);font-weight:300;padding:0 4px;flex-shrink:0;line-height:1;margin-top:8px}
-.cas-lbl{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:5px;letter-spacing:.2px}
+.cas-lbl{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:4px;letter-spacing:.2px}
+.inc-term-toggle{display:flex;background:var(--border);border-radius:6px;padding:2px;gap:1px;margin-bottom:5px;width:fit-content;margin-left:auto;margin-right:auto}
+.inc-term-btn{padding:3px 9px;border:none;background:none;font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;font-family:inherit;border-radius:4px;transition:all .15s}
+.inc-term-btn.on{background:var(--surface);color:var(--green);box-shadow:0 1px 2px rgba(50,30,5,0.1)}
 .cas-val{font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .cas-val.inc{color:var(--green)}
 .cas-val.avail{color:var(--gold);font-size:16px}
@@ -424,7 +427,11 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
       </div>
       <div class="cas-op">+</div>
       <div class="cas-base-cell">
-        <div class="cas-lbl">들어올 돈</div>
+        <div class="inc-term-toggle">
+          <button class="inc-term-btn on" id="incTermBtn단기" onclick="setIncTerm('단기',this)">단기</button>
+          <button class="inc-term-btn" id="incTermBtn장기" onclick="setIncTerm('장기',this)">장기</button>
+          <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">전체</button>
+        </div>
         <div class="cas-val inc" id="sumInc">+0</div>
       </div>
       <div class="cas-op">=</div>
@@ -835,7 +842,7 @@ var income  = JSON.parse(localStorage.getItem('fm_inc')||'[]');
 var expense = JSON.parse(localStorage.getItem('fm_exp')||'[]');
 var invest  = JSON.parse(localStorage.getItem('fm_inv')||'{"in":[],"out":[]}');
 var bal     = parseInt(localStorage.getItem('fm_bal')||'0');
-var incTab='단기';
+var incTab='단기', incSumTerm='단기';
 var addExpTerm='단기', addExpPri=1, priPickerTarget=null;
 var expOpenGroups={단기:true,장기:false};
 var curMonth=new Date().getMonth()+1;
@@ -876,6 +883,11 @@ function parseAmt(s){return parseInt((s||'').replace(/,/g,''))||0;}
 /* ── 탭 ── */
 function setTab(t,term,btn){
   if(t==='inc'){incTab=term;['단기','장기'].forEach(function(x){document.getElementById('itab'+x).className='tab'+(x===term?' on-inc':'');});renderInc();}
+}
+function setIncTerm(term,btn){
+  incSumTerm=term;
+  ['단기','장기','전체'].forEach(function(x){document.getElementById('incTermBtn'+x).classList.toggle('on',x===term);});
+  renderSum();
 }
 function setAddTerm(term,btn){
   addExpTerm=term;
@@ -964,7 +976,9 @@ function toggleInvestSection(){
 
 /* ── 렌더 ── */
 function renderSum(){
-  var iAll=income.reduce(function(s,x){return s+x.amount;},0);
+  var iAll=incSumTerm==='전체'
+    ? income.reduce(function(s,x){return s+x.amount;},0)
+    : income.filter(function(x){return x.term===incSumTerm;}).reduce(function(s,x){return s+x.amount;},0);
   var avail=bal+iAll;
   document.getElementById('sumBal').textContent=fmt(bal);
   document.getElementById('sumInc').textContent='+'+fmt(iAll);
