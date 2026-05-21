@@ -112,8 +112,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 .cas-left-val{font-size:14px;font-weight:700;color:var(--text);text-align:right}
 .cas-left-val.inc{color:var(--green)}
 .cas-left-val.avail{color:var(--gold)}
-.cas-inc-row{display:flex;flex-direction:column;gap:4px;padding:8px 0;border-bottom:1px solid var(--border)}
-.cas-inc-top{display:flex;justify-content:flex-start;align-items:center;gap:8px}
+.cas-inc-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
 /* 들어올돈 토글 */
 .inc-term-toggle{display:flex;background:var(--border2);border-radius:5px;padding:2px;gap:1px}
 .inc-term-btn{padding:2px 8px;border:none;background:none;font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;font-family:inherit;border-radius:3px;transition:all .15s}
@@ -341,12 +340,8 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   .cas-left{padding:10px 10px}
   .cas-left-row{flex-direction:column;align-items:flex-start;gap:2px;padding:6px 0}
   .cas-left-val{font-size:15px;text-align:left}
-  .cas-inc-lbl-txt{display:none}
-  .cas-inc-top{width:100%;justify-content:flex-start}
-  .inc-term-toggle{width:auto;justify-content:flex-start}
-  .inc-term-btn{flex:none;text-align:center;padding:3px 8px;font-size:10px}
   .cas-inc-row{padding:6px 0}
-  #sumInc{font-size:15px;margin-top:3px;text-align:left !important}
+  #sumInc{font-size:15px}
   .cas-mid{padding:8px 6px;gap:5px}
   .pri-tog{padding:7px 8px;gap:5px;border-radius:7px}
   .pri-chk{width:13px;height:13px}
@@ -461,15 +456,13 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
           <span class="cas-left-val" id="sumBal">0</span>
         </div>
         <div class="cas-inc-row">
-          <div class="cas-inc-top">
-            <span class="cas-left-lbl cas-inc-lbl-txt">들어올 돈</span>
-            <div class="inc-term-toggle">
-              <button class="inc-term-btn on" id="incTermBtn단기" onclick="setIncTerm('단기',this)">단기</button>
-              <button class="inc-term-btn" id="incTermBtn장기" onclick="setIncTerm('장기',this)">장기</button>
-              <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">합계</button>
-            </div>
+          <span class="cas-left-lbl">들어올 돈</span>
+          <div class="inc-term-toggle">
+            <button class="inc-term-btn on" id="incTermBtn단기" onclick="setIncTerm('단기',this)">단기</button>
+            <button class="inc-term-btn" id="incTermBtn장기" onclick="setIncTerm('장기',this)">장기</button>
+            <button class="inc-term-btn" id="incTermBtn전체" onclick="setIncTerm('전체',this)">합계</button>
           </div>
-          <div class="cas-left-val inc" id="sumInc" style="text-align:right">+0</div>
+          <span class="cas-left-val inc" id="sumInc">+0</span>
         </div>
         <div class="cas-left-row">
           <span class="cas-left-lbl">가용자금</span>
