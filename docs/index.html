@@ -160,6 +160,20 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 .pri-picker{position:fixed;z-index:500;background:var(--surface);border:1px solid var(--border);border-radius:10px;box-shadow:var(--shadow-md);overflow:hidden;display:none;min-width:110px}
 .pri-pick-opt{display:flex;align-items:center;padding:10px 14px;cursor:pointer;transition:background .12s;gap:8px}
 .pri-pick-opt:hover{background:var(--surface2)}
+/* 나갈 돈 아코디언 그룹 */
+.exp-group{border-bottom:1px solid var(--border)}
+.exp-group:last-child{border-bottom:none}
+.exp-group-hd{display:flex;align-items:center;gap:10px;padding:12px 20px;cursor:pointer;transition:background .15s;user-select:none}
+.exp-group-hd:hover{background:var(--surface2)}
+.exp-group-arr{font-size:10px;color:var(--text3);width:14px;flex-shrink:0}
+.exp-group-nm{font-size:15px;font-weight:700;color:var(--text);flex-shrink:0}
+.exp-group-sum{font-size:14px;font-weight:600;color:var(--red);margin-left:auto}
+.exp-group-cnt{font-size:12px;color:var(--text3);flex-shrink:0}
+.exp-group-body{padding:0 20px 8px}
+/* 추가 영역 단기/장기 토글 */
+.exp-term-row{display:flex;gap:6px;margin-bottom:10px}
+.exp-term-btn{flex:1;padding:7px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface);font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text3);transition:all .15s}
+.exp-term-btn.active{background:var(--gold-bg);color:var(--gold);border-color:#ddc898}
 /* 순위 세그먼트 컨트롤 */
 .pri-seg{display:flex;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px}
 .pri-seg-btn{flex:1;padding:8px 6px;border:none;border-right:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;color:var(--text3);transition:all .15s}
@@ -448,14 +462,14 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
         <div class="card-title"><span class="card-dot dot-red"></span>나갈 돈</div>
         <div class="card-sub" id="expSub">전체 합계 0원</div>
       </div>
-      <div class="tabs">
-        <button class="tab on-exp" id="etab단기" onclick="setTab('exp','단기',this)">단기</button>
-        <button class="tab" id="etab장기" onclick="setTab('exp','장기',this)">장기</button>
-      </div>
-      <div class="item-list" id="expList"></div>
+      <div id="expList"></div>
       <div class="subtotal-bar" id="expStot"></div>
       <div class="add-area">
-        <div class="pri-seg">
+        <div class="exp-term-row">
+          <button class="exp-term-btn active" id="eTermBtn단기" onclick="setAddTerm('단기',this)">단기</button>
+          <button class="exp-term-btn" id="eTermBtn장기" onclick="setAddTerm('장기',this)">장기</button>
+        </div>
+        <div class="pri-seg" id="expPriSeg">
           <button class="pri-seg-btn p1 active" onclick="selectAddPri(1,this)">1순위</button>
           <button class="pri-seg-btn p2" onclick="selectAddPri(2,this)">2순위</button>
           <button class="pri-seg-btn p3" onclick="selectAddPri(3,this)">3순위</button>
@@ -793,8 +807,9 @@ var income  = JSON.parse(localStorage.getItem('fm_inc')||'[]');
 var expense = JSON.parse(localStorage.getItem('fm_exp')||'[]');
 var invest  = JSON.parse(localStorage.getItem('fm_inv')||'{"in":[],"out":[]}');
 var bal     = parseInt(localStorage.getItem('fm_bal')||'0');
-var incTab='단기', expTab='단기', sumIncTrm='단기', sumExpTrm='단기';
-var addExpPri=1, priPickerTarget=null;
+var incTab='단기', sumIncTrm='단기', sumExpTrm='단기';
+var addExpTerm='단기', addExpPri=1, priPickerTarget=null;
+var expOpenGroups={단기:true,장기:false};
 var curMonth=new Date().getMonth()+1;
 var investOpenMonths={in:new Set(),out:new Set()};
 
@@ -833,7 +848,16 @@ function parseAmt(s){return parseInt((s||'').replace(/,/g,''))||0;}
 /* ── 탭 ── */
 function setTab(t,term,btn){
   if(t==='inc'){incTab=term;['단기','장기'].forEach(function(x){document.getElementById('itab'+x).className='tab'+(x===term?' on-inc':'');});renderInc();}
-  else{expTab=term;['단기','장기'].forEach(function(x){document.getElementById('etab'+x).className='tab'+(x===term?' on-exp':'');});renderExp();}
+}
+function setAddTerm(term,btn){
+  addExpTerm=term;
+  document.querySelectorAll('.exp-term-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  document.getElementById('expPriSeg').style.display=term==='단기'?'flex':'none';
+}
+function toggleExpGroup(term){
+  expOpenGroups[term]=!expOpenGroups[term];
+  renderExp();
 }
 function selectAddPri(pri,btn){
   addExpPri=pri;
@@ -878,8 +902,11 @@ function delInc(id){income=income.filter(function(x){return x.id!==id;});save();
 function addExp(){
   var n=document.getElementById('eName').value.trim(),a=parseAmt(document.getElementById('eAmt').value);
   if(!n||!a){alert('항목명과 금액을 입력해주세요');return;}
-  expense.push({id:Date.now(),name:n,amount:a,term:expTab,priority:addExpPri});
+  var item={id:Date.now(),name:n,amount:a,term:addExpTerm};
+  if(addExpTerm==='단기')item.priority=addExpPri;
+  expense.push(item);
   document.getElementById('eName').value='';document.getElementById('eAmt').value='';
+  expOpenGroups[addExpTerm]=true;
   save();render();
 }
 function delExp(id){expense=expense.filter(function(x){return x.id!==id;});save();render();}
@@ -930,20 +957,44 @@ function renderInc(){
   document.getElementById('incStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val inc">+'+fmt(s단)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val inc">+'+fmt(s장)+'</div></div>';
 }
 function renderExp(){
-  var items=expense.filter(function(x){return x.term===expTab;});
-  items.sort(function(a,b){return (a.priority||2)-(b.priority||2);});
   document.getElementById('expSub').textContent='전체 합계 '+fmt(expense.reduce(function(s,x){return s+x.amount;},0))+'원';
   var el=document.getElementById('expList');
   var priName=['','1순위','2순위','3순위'];
   var priCls=['','pri-1','pri-2','pri-3'];
-  el.innerHTML=items.length
-    ? items.map(function(x){
+  /* 단기: 순위 있음, 정렬 */
+  var danItems=expense.filter(function(x){return x.term==='단기';});
+  danItems.sort(function(a,b){return (a.priority||2)-(b.priority||2);});
+  var danSum=danItems.reduce(function(s,x){return s+x.amount;},0);
+  var danOpen=expOpenGroups['단기'];
+  var danBody=danItems.length
+    ? danItems.map(function(x){
         var p=x.priority||2;
         return '<div class="item"><span class="pri-badge '+priCls[p]+'" onclick="showPriPicker('+x.id+',event)" title="순위 변경">'+priName[p]+'</span><span class="item-name">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';
       }).join('')
     : '<div class="no-item">항목이 없어요</div>';
-  var e단=expense.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
-  var e장=expense.filter(function(x){return x.term==='장기';}).reduce(function(s,x){return s+x.amount;},0);
+  /* 장기: 순위 없음 */
+  var jangItems=expense.filter(function(x){return x.term==='장기';});
+  var jangSum=jangItems.reduce(function(s,x){return s+x.amount;},0);
+  var jangOpen=expOpenGroups['장기'];
+  var jangBody=jangItems.length
+    ? jangItems.map(function(x){
+        return '<div class="item"><span class="item-name">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';
+      }).join('')
+    : '<div class="no-item">항목이 없어요</div>';
+  function mkGroup(term,sum,cnt,open,body){
+    return '<div class="exp-group">'
+      +'<div class="exp-group-hd" onclick="toggleExpGroup(\''+term+'\')">'
+      +'<span class="exp-group-arr">'+(open?'▼':'▶')+'</span>'
+      +'<span class="exp-group-nm">'+term+'</span>'
+      +'<span class="exp-group-cnt">'+cnt+'건</span>'
+      +'<span class="exp-group-sum">-'+fmt(sum)+'</span>'
+      +'</div>'
+      +(open?'<div class="exp-group-body">'+body+'</div>':'')
+      +'</div>';
+  }
+  el.innerHTML=mkGroup('단기',danSum,danItems.length,danOpen,danBody)
+             +mkGroup('장기',jangSum,jangItems.length,jangOpen,jangBody);
+  var e단=danSum, e장=jangSum;
   document.getElementById('expStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val exp">-'+fmt(e단)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val exp">-'+fmt(e장)+'</div></div>';
 }
 function renderInvest(){renderInvSide('in');renderInvSide('out');renderMonthlySettlement();}
