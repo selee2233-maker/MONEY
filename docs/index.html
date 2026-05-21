@@ -100,17 +100,26 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* 요약 */
-.summary-bar{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
-.sum-tabs{display:flex;gap:20px;margin-bottom:18px}
-.sum-tab-grp{display:flex;align-items:center;gap:8px}
-.sum-tab-label{font-size:13px;font-weight:600;color:var(--text2)}
-.sum-tab-toggle{display:flex;background:var(--surface2);border-radius:8px;padding:3px;gap:2px}
-.stab{padding:5px 14px;border:none;background:none;font-size:13px;font-weight:600;color:var(--text3);cursor:pointer;font-family:inherit;border-radius:6px;transition:all .15s}
-.stab.on{background:var(--surface);color:var(--text);box-shadow:0 1px 3px rgba(50,30,5,0.12)}
-.sum-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.sum-card{background:var(--surface2);border-radius:var(--r-sm);padding:12px 14px}
-.sum-card.highlight{background:var(--gold-bg);border:1px solid #ddc898}
-.sum-card.highlight.neg{background:var(--red-bg);border-color:var(--red-border)}
+/* ── 요약 섹션 ── */
+.summary-bar{padding:18px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
+/* 가용자금 상단 행 */
+.cas-base{display:flex;align-items:center;background:var(--surface2);border-radius:var(--r-sm);padding:14px 16px;margin-bottom:10px;gap:2px}
+.cas-base-cell{flex:1;text-align:center;min-width:0}
+.cas-op{font-size:18px;color:var(--text3);font-weight:300;padding:0 4px;flex-shrink:0;line-height:1;margin-top:8px}
+.cas-lbl{font-size:11px;font-weight:600;color:var(--text3);margin-bottom:5px;letter-spacing:.2px}
+.cas-val{font-size:15px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cas-val.inc{color:var(--green)}
+.cas-val.avail{color:var(--gold);font-size:16px}
+/* 순위별 계산 행 */
+.cas-table{display:flex;flex-direction:column;gap:7px}
+.cas-row{display:flex;align-items:center;background:var(--surface2);border-radius:var(--r-sm);padding:11px 16px;gap:8px}
+.cas-tag{font-size:12px;font-weight:700;color:var(--text2);min-width:68px;flex-shrink:0}
+.cas-exp{font-size:13px;font-weight:600;color:var(--red);flex:1;text-align:right}
+.cas-arr{font-size:12px;color:var(--text3);flex-shrink:0}
+.cas-net{font-size:15px;font-weight:700;min-width:100px;text-align:right;flex-shrink:0}
+.cas-net.pos{color:var(--green)}
+.cas-net.neg{color:var(--red)}
+/* 구버전 호환용 (투자섹션 등에서 사용) */
 .sc-label{font-size:12px;font-weight:600;color:var(--text3);letter-spacing:.3px;text-transform:uppercase;margin-bottom:6px}
 .sc-val{font-size:18px;font-weight:400;color:var(--text);letter-spacing:-.3px}
 .sc-val.inc{color:var(--green)}
@@ -407,27 +416,43 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 
   <!-- 요약 -->
   <div class="summary-bar">
-    <div class="sum-tabs">
-      <div class="sum-tab-grp">
-        <span class="sum-tab-label">들어올 돈</span>
-        <div class="sum-tab-toggle">
-          <button class="stab on" id="si단기" onclick="setSumTerm('inc','단기',this)">단기</button>
-          <button class="stab" id="si장기" onclick="setSumTerm('inc','장기',this)">장기</button>
-        </div>
+    <!-- 가용자금 계산 -->
+    <div class="cas-base">
+      <div class="cas-base-cell">
+        <div class="cas-lbl">현재잔액</div>
+        <div class="cas-val" id="sumBal">0</div>
       </div>
-      <div class="sum-tab-grp">
-        <span class="sum-tab-label">나갈 돈</span>
-        <div class="sum-tab-toggle">
-          <button class="stab on" id="se단기" onclick="setSumTerm('exp','단기',this)">단기</button>
-          <button class="stab" id="se장기" onclick="setSumTerm('exp','장기',this)">장기</button>
-        </div>
+      <div class="cas-op">+</div>
+      <div class="cas-base-cell">
+        <div class="cas-lbl">들어올 돈</div>
+        <div class="cas-val inc" id="sumInc">+0</div>
+      </div>
+      <div class="cas-op">=</div>
+      <div class="cas-base-cell">
+        <div class="cas-lbl">가용자금</div>
+        <div class="cas-val avail" id="sumAvail">0</div>
       </div>
     </div>
-    <div class="sum-cards">
-      <div class="sum-card"><div class="sc-label">현재잔액</div><div class="sc-val" id="sumBal">0</div></div>
-      <div class="sum-card"><div class="sc-label">들어올 돈</div><div class="sc-val inc" id="sumInc">+0</div></div>
-      <div class="sum-card"><div class="sc-label">나갈 돈</div><div class="sc-val exp" id="sumExp">-0</div></div>
-      <div class="sum-card highlight" id="netCard"><div class="sc-label">예상 잔액</div><div class="sc-val net-p" id="sumNet">0</div></div>
+    <!-- 순위별 잔액 -->
+    <div class="cas-table">
+      <div class="cas-row">
+        <span class="cas-tag">1순위</span>
+        <span class="cas-exp" id="casExp1">-0</span>
+        <span class="cas-arr">→</span>
+        <span class="cas-net pos" id="casNet1">0</span>
+      </div>
+      <div class="cas-row">
+        <span class="cas-tag">1+2순위</span>
+        <span class="cas-exp" id="casExp2">-0</span>
+        <span class="cas-arr">→</span>
+        <span class="cas-net pos" id="casNet2">0</span>
+      </div>
+      <div class="cas-row">
+        <span class="cas-tag">1+2+3순위</span>
+        <span class="cas-exp" id="casExp3">-0</span>
+        <span class="cas-arr">→</span>
+        <span class="cas-net pos" id="casNet3">0</span>
+      </div>
     </div>
   </div>
 
@@ -810,7 +835,7 @@ var income  = JSON.parse(localStorage.getItem('fm_inc')||'[]');
 var expense = JSON.parse(localStorage.getItem('fm_exp')||'[]');
 var invest  = JSON.parse(localStorage.getItem('fm_inv')||'{"in":[],"out":[]}');
 var bal     = parseInt(localStorage.getItem('fm_bal')||'0');
-var incTab='단기', sumIncTrm='단기', sumExpTrm='단기';
+var incTab='단기';
 var addExpTerm='단기', addExpPri=1, priPickerTarget=null;
 var expOpenGroups={단기:true,장기:false};
 var curMonth=new Date().getMonth()+1;
@@ -939,16 +964,24 @@ function toggleInvestSection(){
 
 /* ── 렌더 ── */
 function renderSum(){
-  var iT=income.filter(function(x){return x.term===sumIncTrm;}).reduce(function(s,x){return s+x.amount;},0);
-  var eT=expense.filter(function(x){return x.term===sumExpTrm;}).reduce(function(s,x){return s+x.amount;},0);
-  var net=bal+iT-eT;
+  var iAll=income.reduce(function(s,x){return s+x.amount;},0);
+  var avail=bal+iAll;
   document.getElementById('sumBal').textContent=fmt(bal);
-  document.getElementById('sumInc').textContent='+'+fmt(iT);
-  document.getElementById('sumExp').textContent='-'+fmt(eT);
-  var ne=document.getElementById('sumNet'),nc=document.getElementById('netCard');
-  ne.textContent=(net>=0?'+':'-')+fmt(Math.abs(net));
-  ne.className='sc-val '+(net>=0?'net-p':'net-n');
-  nc.className='sum-card highlight'+(net<0?' neg':'');
+  document.getElementById('sumInc').textContent='+'+fmt(iAll);
+  document.getElementById('sumAvail').textContent=fmt(avail);
+  /* 단기 나갈돈 순위별 누계 */
+  var e1=expense.filter(function(x){return x.term==='단기'&&x.priority===1;}).reduce(function(s,x){return s+x.amount;},0);
+  var e12=expense.filter(function(x){return x.term==='단기'&&(x.priority===1||x.priority===2);}).reduce(function(s,x){return s+x.amount;},0);
+  var e123=expense.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
+  function setRow(expId,netId,expAmt,net){
+    document.getElementById(expId).textContent='-'+fmt(expAmt);
+    var el=document.getElementById(netId);
+    el.textContent=(net>=0?'+':'')+fmt(net);
+    el.className='cas-net '+(net>=0?'pos':'neg');
+  }
+  setRow('casExp1','casNet1',e1,avail-e1);
+  setRow('casExp2','casNet2',e12,avail-e12);
+  setRow('casExp3','casNet3',e123,avail-e123);
 }
 function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
