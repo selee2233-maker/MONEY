@@ -162,7 +162,8 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 #expList{flex:1}
 .item{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--border)}
 .item:last-child{border-bottom:none}
-.item-name{flex:1;font-size:15px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item-name{flex:1;font-size:15px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;transition:color .15s}
+.item-name:hover{color:var(--gold)}
 .item-amt{font-size:14px;font-weight:600;flex-shrink:0}
 .item-amt.inc{color:var(--green)}
 .item-amt.exp{color:var(--red)}
@@ -640,6 +641,22 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   </div>
 </div>
 
+<!-- 항목 수정 모달 -->
+<div class="modal-bg" id="editModal" onclick="if(event.target===this)closeEditModal()">
+  <div class="modal">
+    <div class="modal-title" id="editModalTitle">항목 수정</div>
+    <div class="modal-lbl">항목명</div>
+    <input class="modal-inp" id="editName" type="text" placeholder="항목명" onkeydown="if(event.key==='Enter')document.getElementById('editAmt').focus()"/>
+    <div class="modal-lbl">금액</div>
+    <input class="modal-inp" id="editAmt" type="text" placeholder="금액" inputmode="numeric" oninput="fmtI(this)" onkeydown="if(event.key==='Enter')saveEdit()"/>
+    <div class="modal-err" id="editErr"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeEditModal()">취소</button>
+      <button class="btn-ok" onclick="saveEdit()">저장</button>
+    </div>
+  </div>
+</div>
+
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -978,6 +995,48 @@ function addInc(){
   save();render();
 }
 function delInc(id){income=income.filter(function(x){return x.id!==id;});save();render();}
+
+/* ── 수정 기능 ── */
+var _editTarget=null;
+function openEditInc(id){
+  var item=income.find(function(x){return x.id===id;});
+  if(!item)return;
+  _editTarget={type:'inc',id:id};
+  document.getElementById('editModalTitle').textContent='들어올 돈 수정';
+  document.getElementById('editName').value=item.name;
+  document.getElementById('editAmt').value=fmt(item.amount);
+  document.getElementById('editErr').textContent='';
+  document.getElementById('editModal').classList.add('open');
+  setTimeout(function(){document.getElementById('editName').focus();},100);
+}
+function openEditExp(id){
+  var item=expense.find(function(x){return x.id===id;});
+  if(!item)return;
+  _editTarget={type:'exp',id:id};
+  document.getElementById('editModalTitle').textContent='나갈 돈 수정';
+  document.getElementById('editName').value=item.name;
+  document.getElementById('editAmt').value=fmt(item.amount);
+  document.getElementById('editErr').textContent='';
+  document.getElementById('editModal').classList.add('open');
+  setTimeout(function(){document.getElementById('editName').focus();},100);
+}
+function closeEditModal(){
+  document.getElementById('editModal').classList.remove('open');
+  _editTarget=null;
+}
+function saveEdit(){
+  var n=document.getElementById('editName').value.trim();
+  var a=parseAmt(document.getElementById('editAmt').value);
+  if(!n||!a){document.getElementById('editErr').textContent='항목명과 금액을 입력해주세요';return;}
+  if(_editTarget.type==='inc'){
+    var item=income.find(function(x){return x.id===_editTarget.id;});
+    if(item){item.name=n;item.amount=a;}
+  } else {
+    var item=expense.find(function(x){return x.id===_editTarget.id;});
+    if(item){item.name=n;item.amount=a;}
+  }
+  save();render();closeEditModal();
+}
 function addExp(){
   var n=document.getElementById('eName').value.trim(),a=parseAmt(document.getElementById('eAmt').value);
   if(!n||!a){alert('항목명과 금액을 입력해주세요');return;}
@@ -1044,7 +1103,7 @@ function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
   document.getElementById('incSub').textContent='전체 합계 '+fmt(income.reduce(function(s,x){return s+x.amount;},0))+'원';
   var el=document.getElementById('incList');
-  el.innerHTML=items.length?items.map(function(x){return '<div class="item"><span class="item-name">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
+  el.innerHTML=items.length?items.map(function(x){return '<div class="item"><span class="item-name" onclick="openEditInc('+x.id+')">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
   var s단=income.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
   var s장=income.filter(function(x){return x.term==='장기';}).reduce(function(s,x){return s+x.amount;},0);
   document.getElementById('incStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val inc">+'+fmt(s단)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val inc">+'+fmt(s장)+'</div></div>';
@@ -1076,13 +1135,13 @@ function renderExp(){
   /* 단기 내용 */
   var danBodyHtml=danOpen
     ? '<div class="exp-group-body">'+(danItems.length
-        ? danItems.map(function(x){var p=x.priority||2;return '<div class="item"><span class="pri-badge '+priCls[p]+'" onclick="showPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
+        ? danItems.map(function(x){var p=x.priority||2;return '<div class="item"><span class="pri-badge '+priCls[p]+'" onclick="showPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditExp('+x.id+')">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
         : '<div class="no-item">항목이 없어요</div>')+'</div>'
     : '';
   /* 장기 내용 */
   var jangBodyHtml=jangOpen
     ? '<div class="exp-group-body">'+(jangItems.length
-        ? jangItems.map(function(x){return '<div class="item"><span class="item-name">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
+        ? jangItems.map(function(x){return '<div class="item"><span class="item-name" onclick="openEditExp('+x.id+')">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
         : '<div class="no-item">항목이 없어요</div>')+'</div>'
     : '';
   el.innerHTML=headers+danBodyHtml+jangBodyHtml;
