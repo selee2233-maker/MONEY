@@ -508,6 +508,10 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
       <div class="item-list" id="incList"></div>
       <div class="subtotal-bar" id="incStot"></div>
       <div class="add-area">
+        <div class="pri-seg" id="incPriSeg">
+          <button class="pri-seg-btn p1 inc-pri-seg-btn active" onclick="selectIncAddPri(1,this)">1순위</button>
+          <button class="pri-seg-btn p2 inc-pri-seg-btn" onclick="selectIncAddPri(2,this)">2순위</button>
+        </div>
         <div class="add-row">
           <input class="inp" id="iName" placeholder="항목명" onkeydown="if(event.key==='Enter')document.getElementById('iAmt').focus()"/>
           <input class="inp inp-amt" id="iAmt" placeholder="금액" inputmode="numeric" oninput="fmtI(this)" onkeydown="if(event.key==='Enter')addInc()"/>
@@ -649,12 +653,28 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
     <input class="modal-inp" id="editName" type="text" placeholder="항목명" onkeydown="if(event.key==='Enter')document.getElementById('editAmt').focus()"/>
     <div class="modal-lbl">금액</div>
     <input class="modal-inp" id="editAmt" type="text" placeholder="금액" inputmode="numeric" oninput="fmtI(this)" onkeydown="if(event.key==='Enter')saveEdit()"/>
+    <div class="modal-lbl">순위</div>
+    <div class="pri-seg" id="editIncPriRow" style="display:none">
+      <button class="pri-seg-btn p1 edit-inc-pri-btn active" data-pri="1" onclick="document.querySelectorAll('.edit-inc-pri-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">1순위</button>
+      <button class="pri-seg-btn p2 edit-inc-pri-btn" data-pri="2" onclick="document.querySelectorAll('.edit-inc-pri-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">2순위</button>
+    </div>
+    <div class="pri-seg" id="editExpPriRow" style="display:none">
+      <button class="pri-seg-btn p1 edit-exp-pri-btn active" data-pri="1" onclick="document.querySelectorAll('.edit-exp-pri-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">1순위</button>
+      <button class="pri-seg-btn p2 edit-exp-pri-btn" data-pri="2" onclick="document.querySelectorAll('.edit-exp-pri-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">2순위</button>
+      <button class="pri-seg-btn p3 edit-exp-pri-btn" data-pri="3" onclick="document.querySelectorAll('.edit-exp-pri-btn').forEach(function(b){b.classList.remove('active')});this.classList.add('active')">3순위</button>
+    </div>
     <div class="modal-err" id="editErr"></div>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeEditModal()">취소</button>
       <button class="btn-ok" onclick="saveEdit()">저장</button>
     </div>
   </div>
+</div>
+
+<!-- 들어올 돈 순위 선택 팝업 -->
+<div class="pri-picker" id="incPriPicker">
+  <div class="pri-pick-opt" onclick="setIncPriority(1)"><span class="pri-badge pri-1">1순위</span></div>
+  <div class="pri-pick-opt" onclick="setIncPriority(2)"><span class="pri-badge pri-2">2순위</span></div>
 </div>
 
 <!-- Firebase SDK -->
@@ -892,6 +912,7 @@ var bal     = parseInt(localStorage.getItem('fm_bal')||'0');
 var incTab='단기', incSumTerm='단기';
 var priSel={1:false,2:false,3:false};
 var addExpTerm='단기', addExpPri=1, priPickerTarget=null;
+var addIncPri=1, incPriPickerTarget=null;
 var expOpenGroups={단기:true,장기:false};
 var curMonth=new Date().getMonth()+1;
 var investOpenMonths={in:new Set(),out:new Set()};
@@ -979,6 +1000,8 @@ function setPriority(pri){
 document.addEventListener('click',function(){
   var pk=document.getElementById('priPicker');
   if(pk)pk.style.display='none';
+  var ipk=document.getElementById('incPriPicker');
+  if(ipk)ipk.style.display='none';
 });
 function setSumTerm(t,term){
   if(t==='inc'){sumIncTrm=term;['단기','장기'].forEach(function(x){document.getElementById('si'+x).className='stab'+(x===term?' on':'');});}
@@ -990,9 +1013,29 @@ function setSumTerm(t,term){
 function addInc(){
   var n=document.getElementById('iName').value.trim(),a=parseAmt(document.getElementById('iAmt').value);
   if(!n||!a){alert('항목명과 금액을 입력해주세요');return;}
-  income.push({id:Date.now(),name:n,amount:a,term:incTab});
+  income.push({id:Date.now(),name:n,amount:a,term:incTab,priority:addIncPri});
   document.getElementById('iName').value='';document.getElementById('iAmt').value='';
   save();render();
+}
+function selectIncAddPri(pri,btn){
+  addIncPri=pri;
+  document.querySelectorAll('.inc-pri-seg-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+}
+function showIncPriPicker(id,event){
+  event.stopPropagation();
+  incPriPickerTarget=id;
+  var pk=document.getElementById('incPriPicker');
+  var r=event.target.getBoundingClientRect();
+  pk.style.display='block';
+  var left=r.left, top=r.bottom+4;
+  if(left+120>window.innerWidth)left=window.innerWidth-124;
+  pk.style.left=left+'px';pk.style.top=top+'px';
+}
+function setIncPriority(pri){
+  var item=income.find(function(x){return x.id===incPriPickerTarget;});
+  if(item){item.priority=pri;save();renderInc();}
+  document.getElementById('incPriPicker').style.display='none';
 }
 function delInc(id){income=income.filter(function(x){return x.id!==id;});save();render();}
 
@@ -1006,6 +1049,12 @@ function openEditInc(id){
   document.getElementById('editName').value=item.name;
   document.getElementById('editAmt').value=fmt(item.amount);
   document.getElementById('editErr').textContent='';
+  var p=Math.min(item.priority||1,2);
+  document.querySelectorAll('.edit-inc-pri-btn').forEach(function(b){b.classList.toggle('active',parseInt(b.dataset.pri)===p);});
+  var ep=document.getElementById('editIncPriRow');
+  if(ep)ep.style.display='flex';
+  var epExp=document.getElementById('editExpPriRow');
+  if(epExp)epExp.style.display='none';
   document.getElementById('editModal').classList.add('open');
   setTimeout(function(){document.getElementById('editName').focus();},100);
 }
@@ -1017,6 +1066,12 @@ function openEditExp(id){
   document.getElementById('editName').value=item.name;
   document.getElementById('editAmt').value=fmt(item.amount);
   document.getElementById('editErr').textContent='';
+  var p=item.priority||2;
+  document.querySelectorAll('.edit-exp-pri-btn').forEach(function(b){b.classList.toggle('active',parseInt(b.dataset.pri)===p);});
+  var ep=document.getElementById('editExpPriRow');
+  if(ep)ep.style.display='flex';
+  var epInc=document.getElementById('editIncPriRow');
+  if(epInc)epInc.style.display='none';
   document.getElementById('editModal').classList.add('open');
   setTimeout(function(){document.getElementById('editName').focus();},100);
 }
@@ -1030,10 +1085,18 @@ function saveEdit(){
   if(!n||!a){document.getElementById('editErr').textContent='항목명과 금액을 입력해주세요';return;}
   if(_editTarget.type==='inc'){
     var item=income.find(function(x){return x.id===_editTarget.id;});
-    if(item){item.name=n;item.amount=a;}
+    if(item){
+      item.name=n;item.amount=a;
+      var activeBtn=document.querySelector('.edit-inc-pri-btn.active');
+      if(activeBtn)item.priority=parseInt(activeBtn.dataset.pri);
+    }
   } else {
     var item=expense.find(function(x){return x.id===_editTarget.id;});
-    if(item){item.name=n;item.amount=a;}
+    if(item){
+      item.name=n;item.amount=a;
+      var activeBtn=document.querySelector('.edit-exp-pri-btn.active');
+      if(activeBtn)item.priority=parseInt(activeBtn.dataset.pri);
+    }
   }
   save();render();closeEditModal();
 }
@@ -1101,9 +1164,12 @@ function renderSum(){
 }
 function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
+  items.sort(function(a,b){return (a.priority||2)-(b.priority||2);});
   document.getElementById('incSub').textContent='전체 합계 '+fmt(income.reduce(function(s,x){return s+x.amount;},0))+'원';
   var el=document.getElementById('incList');
-  el.innerHTML=items.length?items.map(function(x){return '<div class="item"><span class="item-name" onclick="openEditInc('+x.id+')">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
+  var priName=['','1순위','2순위'];
+  var priCls2=['','pri-1','pri-2'];
+  el.innerHTML=items.length?items.map(function(x){var p=Math.min(x.priority||1,2);return '<div class="item"><span class="pri-badge '+priCls2[p]+'" onclick="showIncPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditInc('+x.id+')">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
   var s단=income.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
   var s장=income.filter(function(x){return x.term==='장기';}).reduce(function(s,x){return s+x.amount;},0);
   document.getElementById('incStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val inc">+'+fmt(s단)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val inc">+'+fmt(s장)+'</div></div>';
