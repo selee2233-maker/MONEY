@@ -102,7 +102,7 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 /* 요약 */
 /* ── 요약 섹션 ── */
 .summary-bar{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border)}
-.cas-grid{display:grid;grid-template-columns:1fr 1px 120px 1px 1fr;background:var(--surface2);border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border)}
+.cas-grid{display:grid;grid-template-columns:1fr 1px 136px 1px 1fr;background:var(--surface2);border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border)}
 .cas-divider{background:var(--border)}
 /* 왼쪽 컬럼 */
 .cas-left{padding:14px 16px;display:flex;flex-direction:column;gap:0}
@@ -118,7 +118,13 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 .inc-term-btn{padding:2px 8px;border:none;background:none;font-size:10px;font-weight:700;color:var(--text3);cursor:pointer;font-family:inherit;border-radius:3px;transition:all .15s}
 .inc-term-btn.on{background:var(--surface);color:var(--green);box-shadow:0 1px 2px rgba(50,30,5,0.1)}
 /* 가운데 순위 선택 컬럼 */
-.cas-mid{padding:12px 14px;display:flex;flex-direction:column;justify-content:space-around;gap:8px;background:var(--surface)}
+.cas-mid{padding:10px 10px;display:flex;flex-direction:column;gap:5px;background:var(--surface)}
+.cas-mid-sec{font-size:9px;font-weight:700;color:var(--text3);letter-spacing:.5px;padding:2px 2px 0;text-transform:uppercase}
+.cas-mid-sep{height:1px;background:var(--border);margin:3px 0}
+.pri-tog.inc-sel1{background:#edf7f1;border-color:#a8d8c0}
+.pri-tog.inc-sel1 .pri-chk{background:#2a7a5e;border-color:#2a7a5e;color:#fff}
+.pri-tog.inc-sel2{background:#f0f7ed;border-color:#b8d8a8}
+.pri-tog.inc-sel2 .pri-chk{background:#4a9a4e;border-color:#4a9a4e;color:#fff}
 .pri-tog{display:flex;align-items:center;gap:8px;padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);cursor:pointer;transition:all .15s;font-family:inherit;width:100%;text-align:left}
 .pri-tog:hover{border-color:var(--border2)}
 .pri-tog.sel1{background:#fef2f2;border-color:#e8b8b8}
@@ -473,6 +479,17 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
       <div class="cas-divider"></div>
       <!-- 가운데: 순위 선택 -->
       <div class="cas-mid">
+        <div class="cas-mid-sec">들어올 돈</div>
+        <button class="pri-tog" id="incPriTog1" onclick="toggleIncPriSel(1)">
+          <div class="pri-chk" id="incPriChk1"></div>
+          <span class="pri-tog-lbl">1순위</span>
+        </button>
+        <button class="pri-tog" id="incPriTog2" onclick="toggleIncPriSel(2)">
+          <div class="pri-chk" id="incPriChk2"></div>
+          <span class="pri-tog-lbl">2순위</span>
+        </button>
+        <div class="cas-mid-sep"></div>
+        <div class="cas-mid-sec">나갈 돈</div>
         <button class="pri-tog" id="priTog1" onclick="togglePriSel(1)">
           <div class="pri-chk" id="priChk1"></div>
           <span class="pri-tog-lbl">1순위</span>
@@ -911,6 +928,7 @@ var invest  = JSON.parse(localStorage.getItem('fm_inv')||'{"in":[],"out":[]}');
 var bal     = parseInt(localStorage.getItem('fm_bal')||'0');
 var incTab='단기', incSumTerm='단기';
 var priSel={1:false,2:false,3:false};
+var incPriSel={1:false,2:false};
 var addExpTerm='단기', addExpPri=1, priPickerTarget=null;
 var addIncPri=1, incPriPickerTarget=null;
 var expOpenGroups={단기:true,장기:false};
@@ -964,6 +982,14 @@ function togglePriSel(pri){
   var chk=document.getElementById('priChk'+pri);
   if(priSel[pri]){tog.classList.add('sel'+pri);chk.textContent='✓';}
   else{tog.classList.remove('sel'+pri);chk.textContent='';}
+  renderSum();
+}
+function toggleIncPriSel(pri){
+  incPriSel[pri]=!incPriSel[pri];
+  var tog=document.getElementById('incPriTog'+pri);
+  var chk=document.getElementById('incPriChk'+pri);
+  if(incPriSel[pri]){tog.classList.add('inc-sel'+pri);chk.textContent='✓';}
+  else{tog.classList.remove('inc-sel'+pri);chk.textContent='';}
   renderSum();
 }
 function setAddTerm(term,btn){
@@ -1137,30 +1163,42 @@ function toggleInvestSection(){
 
 /* ── 렌더 ── */
 function renderSum(){
-  var iAll=incSumTerm==='전체'
-    ? income.reduce(function(s,x){return s+x.amount;},0)
-    : income.filter(function(x){return x.term===incSumTerm;}).reduce(function(s,x){return s+x.amount;},0);
-  var avail=bal+iAll;
+  /* 들어올 돈 — 순위 선택 시 해당 순위만, 아니면 term 전체 */
+  var anyIncSel=incPriSel[1]||incPriSel[2];
+  var baseInc;
+  if(anyIncSel){
+    baseInc=income.filter(function(x){
+      var termOk=(incSumTerm==='전체')||(x.term===incSumTerm);
+      return termOk&&incPriSel[Math.min(x.priority||1,2)];
+    }).reduce(function(s,x){return s+x.amount;},0);
+  } else {
+    baseInc=incSumTerm==='전체'
+      ? income.reduce(function(s,x){return s+x.amount;},0)
+      : income.filter(function(x){return x.term===incSumTerm;}).reduce(function(s,x){return s+x.amount;},0);
+  }
+  var avail=bal+baseInc;
   document.getElementById('sumBal').textContent=fmt(bal);
-  document.getElementById('sumInc').textContent='+'+fmt(iAll);
+  document.getElementById('sumInc').textContent='+'+fmt(baseInc);
   document.getElementById('sumAvail').textContent=fmt(avail);
-  /* 선택된 순위 합산 */
-  var anySelected=priSel[1]||priSel[2]||priSel[3];
+  /* 나갈 돈 선택 순위 합산 */
+  var anyExpSel=priSel[1]||priSel[2]||priSel[3];
+  var anyAnySelected=anyIncSel||anyExpSel;
   var cr=document.getElementById('casRight');
-  if(!anySelected){cr.innerHTML='<div class="cas-empty">순위 선택 시<br>합산 표시</div>';return;}
+  if(!anyAnySelected){cr.innerHTML='<div class="cas-empty">순위 선택 시<br>합산 표시</div>';return;}
   var expTotal=expense.filter(function(x){
     return x.term==='단기'&&priSel[x.priority||2];
   }).reduce(function(s,x){return s+x.amount;},0);
   var net=avail-expTotal;
-  var lbls=[];
-  if(priSel[1])lbls.push('1순위');
-  if(priSel[2])lbls.push('2순위');
-  if(priSel[3])lbls.push('3순위');
-  cr.innerHTML=
-    '<div class="cas-r-lbl">'+lbls.join('+')+' 나갈 돈</div>'
-    +'<div class="cas-r-exp">-'+fmt(expTotal)+'</div>'
-    +'<div class="cas-r-lbl">잔 액</div>'
+  var iLbls=[]; if(incPriSel[1])iLbls.push('1'); if(incPriSel[2])iLbls.push('2');
+  var eLbls=[]; if(priSel[1])eLbls.push('1'); if(priSel[2])eLbls.push('2'); if(priSel[3])eLbls.push('3');
+  var html='';
+  if(anyIncSel) html+='<div class="cas-r-lbl">들어올 돈 '+iLbls.join('+')+'순위</div>'
+    +'<div class="cas-r-exp" style="color:var(--green)">+'+fmt(baseInc)+'</div>';
+  if(anyExpSel) html+='<div class="cas-r-lbl">나갈 돈 '+eLbls.join('+')+'순위</div>'
+    +'<div class="cas-r-exp">-'+fmt(expTotal)+'</div>';
+  html+='<div class="cas-r-lbl" style="margin-top:4px">잔 액</div>'
     +'<div class="cas-r-net '+(net>=0?'pos':'neg')+'">'+(net>=0?'+':'')+fmt(net)+'</div>';
+  cr.innerHTML=html;
 }
 function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
