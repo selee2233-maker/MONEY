@@ -345,20 +345,24 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   .msb-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
   /* 하단 바 높이만큼 패딩 */
   #appScreen{padding-bottom:70px}
-  /* 모바일 summary 3컬럼 */
-  .cas-grid{grid-template-columns:1fr 1px 76px 1px 1fr}
-  .cas-left{padding:10px 10px}
-  .cas-left-row{flex-direction:column;align-items:flex-start;gap:2px;padding:6px 0}
-  .cas-left-val{font-size:15px;text-align:left}
+  /* 모바일 summary — 세로 스택 */
+  .cas-grid{display:flex;flex-direction:column}
+  .cas-divider{width:100%;height:1px;min-height:1px}
+  /* 왼쪽: 가로 레이아웃 유지 (라벨 left, 값 right) */
+  .cas-left{padding:10px 14px}
+  .cas-left-row{flex-direction:row;align-items:center;padding:6px 0}
+  .cas-left-val{font-size:14px;text-align:right}
   .cas-inc-row{padding:6px 0}
-  #sumInc{font-size:15px}
-  .cas-mid{padding:8px 6px;gap:5px}
-  .pri-tog{padding:7px 8px;gap:5px;border-radius:7px}
-  .pri-chk{width:13px;height:13px}
-  .pri-tog-lbl{font-size:12px}
-  .cas-right{padding:10px 10px;min-height:80px}
-  .cas-r-exp{font-size:15px;margin:1px 0 5px}
-  .cas-r-net{font-size:20px}
+  #sumInc{font-size:14px}
+  .inc-term-toggle{width:auto}
+  /* 중간: 버튼 풀폭 */
+  .cas-mid{padding:10px 14px;flex-direction:column;gap:6px}
+  .cas-mid-row{flex-wrap:wrap}
+  .cas-mid .pri-tog{padding:6px 12px}
+  /* 오른쪽: 결과 가로 정렬 */
+  .cas-right{padding:10px 14px;flex-direction:row;flex-wrap:wrap;align-items:center;justify-content:space-around;min-height:auto;gap:8px;text-align:center}
+  .cas-r-exp{font-size:14px;margin:0}
+  .cas-r-net{font-size:18px}
   .cas-r-lbl{font-size:10px}
 }
 </style>
