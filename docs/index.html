@@ -859,11 +859,18 @@ function submitSyncCode() {
 }
 
 /* ── 앱 초기화 ── */
+var HARDCODED_FB_CONFIG = {
+  apiKey: "AIzaSyAcS9NOrMiVBtvIhUzYDRI-PWOiqn_lHvA",
+  authDomain: "money-e238c.firebaseapp.com",
+  projectId: "money-e238c",
+  storageBucket: "money-e238c.firebasestorage.app",
+  messagingSenderId: "249332498366",
+  appId: "1:249332498366:web:b7597eda763f7207e043ef"
+};
 (function init() {
-  var savedConfig = localStorage.getItem('fm_fb_config');
-  if (!savedConfig) { showScreen('fbSetupScreen'); return; }
-  var config;
-  try { config = JSON.parse(savedConfig); } catch(e) { showScreen('fbSetupScreen'); return; }
+  /* Firebase config 하드코딩 — setup 화면 스킵 */
+  var config = HARDCODED_FB_CONFIG;
+  localStorage.setItem('fm_fb_config', JSON.stringify(config));
   if (!initFirebase(config)) { showScreen('fbSetupScreen'); return; }
   if (!syncCode) { showScreen('syncSetupScreen'); return; }
   showScreen('loginScreen');
