@@ -178,6 +178,11 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
 .item-amt.exp{color:var(--red)}
 .item-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:18px;padding:2px 4px;border-radius:6px;transition:all .15s;flex-shrink:0;line-height:1}
 .item-del:hover{background:var(--red-bg);color:var(--red)}
+.drag-handle{cursor:grab;color:var(--text3);font-size:15px;flex-shrink:0;opacity:0.3;user-select:none;padding:0 2px;line-height:1;touch-action:none}
+.drag-handle:hover{opacity:.7}
+.drag-handle:active{cursor:grabbing}
+.item.sortable-ghost{opacity:0.25;background:var(--surface2)!important}
+.item.sortable-chosen{background:var(--surface2)}
 .no-item{text-align:center;color:var(--text3);font-size:14px;padding:24px 0;font-weight:500}
 .subtotal-bar{display:flex;padding:10px 20px;background:var(--surface2);border-top:1px solid var(--border)}
 .stot{flex:1;text-align:center}
@@ -705,6 +710,8 @@ body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;ba
   <div class="pri-pick-opt" onclick="setIncPriority(2)"><span class="pri-badge pri-2">2순위</span></div>
 </div>
 
+<!-- SortableJS for drag-and-drop -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.3/Sortable.min.js"></script>
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
@@ -1218,14 +1225,21 @@ function renderSum(){
     +'<div class="cas-r-net '+(net>=0?'pos':'neg')+'">'+(net>=0?'+':'')+fmt(net)+'</div>';
   cr.innerHTML=html;
 }
+var _sortableInc=null, _sortableDan=null, _sortableJang=null;
+function reorderArr(arr,term,newIds){
+  var pos=[];for(var i=0;i<arr.length;i++){if(arr[i].term===term)pos.push(i);}
+  var reordered=newIds.map(function(id){return arr.find(function(x){return x.id===id;});}).filter(Boolean);
+  for(var j=0;j<pos.length&&j<reordered.length;j++){arr[pos[j]]=reordered[j];}
+}
 function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
-  items.sort(function(a,b){return (a.priority||2)-(b.priority||2);});
   document.getElementById('incSub').textContent='전체 합계 '+fmt(income.reduce(function(s,x){return s+x.amount;},0))+'원';
   var el=document.getElementById('incList');
   var priName=['','1순위','2순위'];
   var priCls2=['','pri-1','pri-2'];
-  el.innerHTML=items.length?items.map(function(x){var p=Math.min(x.priority||1,2);return '<div class="item"><span class="pri-badge '+priCls2[p]+'" onclick="showIncPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditInc('+x.id+')">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
+  el.innerHTML=items.length?items.map(function(x){var p=Math.min(x.priority||1,2);return '<div class="item" data-id="'+x.id+'"><span class="drag-handle">⠿</span><span class="pri-badge '+priCls2[p]+'" onclick="showIncPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditInc('+x.id+')">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
+  if(_sortableInc){_sortableInc.destroy();_sortableInc=null;}
+  if(items.length){_sortableInc=Sortable.create(el,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){var ids=Array.from(el.querySelectorAll('.item[data-id]')).map(function(x){return parseInt(x.dataset.id);});reorderArr(income,incTab,ids);save();renderSum();}});}
   var s단=income.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
   var s장=income.filter(function(x){return x.term==='장기';}).reduce(function(s,x){return s+x.amount;},0);
   document.getElementById('incStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val inc">+'+fmt(s단)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val inc">+'+fmt(s장)+'</div></div>';
@@ -1236,7 +1250,6 @@ function renderExp(){
   var priName=['','1순위','2순위','3순위'];
   var priCls=['','pri-1','pri-2','pri-3'];
   var danItems=expense.filter(function(x){return x.term==='단기';});
-  danItems.sort(function(a,b){return (a.priority||2)-(b.priority||2);});
   var danSum=danItems.reduce(function(s,x){return s+x.amount;},0);
   var jangItems=expense.filter(function(x){return x.term==='장기';});
   var jangSum=jangItems.reduce(function(s,x){return s+x.amount;},0);
@@ -1256,17 +1269,23 @@ function renderExp(){
     +'</div>';
   /* 단기 내용 */
   var danBodyHtml=danOpen
-    ? '<div class="exp-group-body">'+(danItems.length
-        ? danItems.map(function(x){var p=x.priority||2;return '<div class="item"><span class="pri-badge '+priCls[p]+'" onclick="showPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditExp('+x.id+')">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
+    ? '<div class="exp-group-body exp-body-dan">'+(danItems.length
+        ? danItems.map(function(x){var p=x.priority||2;return '<div class="item" data-id="'+x.id+'"><span class="drag-handle">⠿</span><span class="pri-badge '+priCls[p]+'" onclick="showPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditExp('+x.id+')">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
         : '<div class="no-item">항목이 없어요</div>')+'</div>'
     : '';
   /* 장기 내용 */
   var jangBodyHtml=jangOpen
-    ? '<div class="exp-group-body">'+(jangItems.length
-        ? jangItems.map(function(x){return '<div class="item"><span class="item-name" onclick="openEditExp('+x.id+')">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
+    ? '<div class="exp-group-body exp-body-jang">'+(jangItems.length
+        ? jangItems.map(function(x){return '<div class="item" data-id="'+x.id+'"><span class="drag-handle">⠿</span><span class="item-name" onclick="openEditExp('+x.id+')">'+x.name+'</span><span class="item-amt exp">-'+fmt(x.amount)+'</span><button class="item-del" onclick="delExp('+x.id+')">×</button></div>';}).join('')
         : '<div class="no-item">항목이 없어요</div>')+'</div>'
     : '';
   el.innerHTML=headers+danBodyHtml+jangBodyHtml;
+  if(_sortableDan){_sortableDan.destroy();_sortableDan=null;}
+  if(_sortableJang){_sortableJang.destroy();_sortableJang=null;}
+  var danBodyEl=el.querySelector('.exp-body-dan');
+  var jangBodyEl=el.querySelector('.exp-body-jang');
+  if(danBodyEl&&danItems.length){_sortableDan=Sortable.create(danBodyEl,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){var ids=Array.from(danBodyEl.querySelectorAll('.item[data-id]')).map(function(x){return parseInt(x.dataset.id);});reorderArr(expense,'단기',ids);save();renderSum();}});}
+  if(jangBodyEl&&jangItems.length){_sortableJang=Sortable.create(jangBodyEl,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){var ids=Array.from(jangBodyEl.querySelectorAll('.item[data-id]')).map(function(x){return parseInt(x.dataset.id);});reorderArr(expense,'장기',ids);save();renderSum();}});}
   document.getElementById('expStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val exp">-'+fmt(danSum)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val exp">-'+fmt(jangSum)+'</div></div>';
 }
 function renderInvest(){renderInvSide('in');renderInvSide('out');renderMonthlySettlement();}
