@@ -1064,7 +1064,7 @@ function setSumTerm(t,term){
 function addInc(){
   var n=document.getElementById('iName').value.trim(),a=parseAmt(document.getElementById('iAmt').value);
   if(!n||!a){alert('항목명과 금액을 입력해주세요');return;}
-  income.push({id:Date.now(),name:n,amount:a,term:incTab,priority:addIncPri});
+  var incSortBase=(addIncPri||1)*1000;income.push({id:Date.now(),name:n,amount:a,term:incTab,priority:addIncPri,sortOrder:incSortBase+income.filter(function(x){return x.term===incTab&&(x.priority||1)===(addIncPri||1);}).length});
   document.getElementById('iName').value='';document.getElementById('iAmt').value='';
   save();render();
 }
@@ -1155,7 +1155,7 @@ function addExp(){
   var n=document.getElementById('eName').value.trim(),a=parseAmt(document.getElementById('eAmt').value);
   if(!n||!a){alert('항목명과 금액을 입력해주세요');return;}
   var item={id:Date.now(),name:n,amount:a,term:addExpTerm};
-  if(addExpTerm==='단기')item.priority=addExpPri;
+  if(addExpTerm==='단기'){item.priority=addExpPri;item.sortOrder=(addExpPri||2)*1000+expense.filter(function(x){return x.term==='단기'&&(x.priority||2)===(addExpPri||2);}).length;}
   expense.push(item);
   document.getElementById('eName').value='';document.getElementById('eAmt').value='';
   expOpenGroups[addExpTerm]=true;
@@ -1233,26 +1233,19 @@ function reorderArr(arr,term,newIds){
 }
 function renderInc(){
   var items=income.filter(function(x){return x.term===incTab;});
-  items.sort(function(a,b){return (a.priority||1)-(b.priority||1);});
+  items.sort(function(a,b){var sa=a.sortOrder!==undefined?a.sortOrder:(a.priority||1)*1000;var sb=b.sortOrder!==undefined?b.sortOrder:(b.priority||1)*1000;return sa-sb;});
   document.getElementById('incSub').textContent='전체 합계 '+fmt(income.reduce(function(s,x){return s+x.amount;},0))+'원';
   var el=document.getElementById('incList');
   var priName=['','1순위','2순위'];
   var priCls2=['','pri-1','pri-2'];
   el.innerHTML=items.length?items.map(function(x){var p=Math.min(x.priority||1,2);return '<div class="item" data-id="'+x.id+'"><span class="drag-handle">⠿</span><span class="pri-badge '+priCls2[p]+'" onclick="showIncPriPicker('+x.id+',event)">'+priName[p]+'</span><span class="item-name" onclick="openEditInc('+x.id+')">'+x.name+'</span><span class="item-amt inc">+'+fmt(x.amount)+'</span><button class="item-del" onclick="delInc('+x.id+')">×</button></div>';}).join(''):'<div class="no-item">항목이 없어요</div>';
   if(_sortableInc){_sortableInc.destroy();_sortableInc=null;}
-  if(items.length){_sortableInc=Sortable.create(el,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(evt){
-    var allEls=Array.from(el.querySelectorAll('.item[data-id]'));
-    var allIds=allEls.map(function(x){return parseInt(x.dataset.id);});
-    var movedId=parseInt(allEls[evt.newIndex].dataset.id);
-    var movedItem=income.find(function(x){return x.id===movedId;});
-    if(movedItem){
-      var newPri;
-      if(evt.newIndex===0){newPri=1;}
-      else{var aboveId=allIds[evt.newIndex-1];var above=income.find(function(x){return x.id===aboveId;});newPri=above?Math.min(above.priority||1,2):1;}
-      movedItem.priority=newPri;
-    }
-    reorderArr(income,incTab,allIds);
-    save();renderInc();renderSum();
+  if(items.length){_sortableInc=Sortable.create(el,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){
+    Array.from(el.querySelectorAll('.item[data-id]')).forEach(function(el,i){
+      var item=income.find(function(x){return x.id===parseInt(el.dataset.id);});
+      if(item)item.sortOrder=i;
+    });
+    save();renderSum();
   }});}
   var s단=income.filter(function(x){return x.term==='단기';}).reduce(function(s,x){return s+x.amount;},0);
   var s장=income.filter(function(x){return x.term==='장기';}).reduce(function(s,x){return s+x.amount;},0);
@@ -1264,7 +1257,7 @@ function renderExp(){
   var priName=['','1순위','2순위','3순위'];
   var priCls=['','pri-1','pri-2','pri-3'];
   var danItems=expense.filter(function(x){return x.term==='단기';});
-  danItems.sort(function(a,b){return (a.priority||2)-(b.priority||2);});
+  danItems.sort(function(a,b){var sa=a.sortOrder!==undefined?a.sortOrder:(a.priority||2)*1000;var sb=b.sortOrder!==undefined?b.sortOrder:(b.priority||2)*1000;return sa-sb;});
   var danSum=danItems.reduce(function(s,x){return s+x.amount;},0);
   var jangItems=expense.filter(function(x){return x.term==='장기';});
   var jangSum=jangItems.reduce(function(s,x){return s+x.amount;},0);
@@ -1299,21 +1292,20 @@ function renderExp(){
   if(_sortableJang){_sortableJang.destroy();_sortableJang=null;}
   var danBodyEl=el.querySelector('.exp-body-dan');
   var jangBodyEl=el.querySelector('.exp-body-jang');
-  if(danBodyEl&&danItems.length){_sortableDan=Sortable.create(danBodyEl,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(evt){
-    var allEls=Array.from(danBodyEl.querySelectorAll('.item[data-id]'));
-    var allIds=allEls.map(function(x){return parseInt(x.dataset.id);});
-    var movedId=parseInt(allEls[evt.newIndex].dataset.id);
-    var movedItem=expense.find(function(x){return x.id===movedId;});
-    if(movedItem){
-      var newPri;
-      if(evt.newIndex===0){newPri=1;}
-      else{var aboveId=allIds[evt.newIndex-1];var above=expense.find(function(x){return x.id===aboveId;});newPri=above?Math.min(Math.max(above.priority||2,1),3):1;}
-      movedItem.priority=newPri;
-    }
-    reorderArr(expense,'단기',allIds);
-    save();renderExp();renderSum();
+  if(danBodyEl&&danItems.length){_sortableDan=Sortable.create(danBodyEl,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){
+    Array.from(danBodyEl.querySelectorAll('.item[data-id]')).forEach(function(el,i){
+      var item=expense.find(function(x){return x.id===parseInt(el.dataset.id);});
+      if(item)item.sortOrder=i;
+    });
+    save();renderSum();
   }});}
-  if(jangBodyEl&&jangItems.length){_sortableJang=Sortable.create(jangBodyEl,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){var ids=Array.from(jangBodyEl.querySelectorAll('.item[data-id]')).map(function(x){return parseInt(x.dataset.id);});reorderArr(expense,'장기',ids);save();renderSum();}});}
+  if(jangBodyEl&&jangItems.length){_sortableJang=Sortable.create(jangBodyEl,{handle:'.drag-handle',animation:150,ghostClass:'sortable-ghost',chosenClass:'sortable-chosen',onEnd:function(){
+    Array.from(jangBodyEl.querySelectorAll('.item[data-id]')).forEach(function(el,i){
+      var item=expense.find(function(x){return x.id===parseInt(el.dataset.id);});
+      if(item)item.sortOrder=i;
+    });
+    save();renderSum();
+  }});}
   document.getElementById('expStot').innerHTML='<div class="stot"><div class="stot-label">단기</div><div class="stot-val exp">-'+fmt(danSum)+'</div></div><div class="stot"><div class="stot-label">장기</div><div class="stot-val exp">-'+fmt(jangSum)+'</div></div>';
 }
 function renderInvest(){renderInvSide('in');renderInvSide('out');renderMonthlySettlement();}
