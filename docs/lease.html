@@ -1,0 +1,1118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="리스승계">
+<meta name="theme-color" content="#1c1006">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>리스승계 서비스</title>
+<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{overflow-x:hidden;width:100%;max-width:100%}
+:root{
+  --bg:#f2ebe0;
+  --surface:#faf6ef;
+  --surface2:#ede5d8;
+  --border:#ddd0be;
+  --border2:#c9b99e;
+  --text:#2a1f14;
+  --text2:#7a6450;
+  --text3:#b09a80;
+  --green:#2a7a5e;
+  --green-bg:#edf7f1;
+  --green-border:#a8d8c0;
+  --red:#b94040;
+  --red-bg:#fdf0f0;
+  --red-border:#e8b8b8;
+  --blue:#3a6698;
+  --blue-bg:#eef4fa;
+  --blue-border:#b8cde4;
+  --gold:#b8933e;
+  --gold-bg:#fdf5e4;
+  --shadow:0 1px 3px rgba(50,30,5,0.08),0 1px 2px rgba(50,30,5,0.04);
+  --shadow-md:0 4px 20px rgba(50,30,5,0.12),0 2px 6px rgba(50,30,5,0.06);
+  --shadow-lg:0 20px 60px rgba(30,15,0,0.22);
+  --r:16px;--r-sm:10px;
+}
+body{font-family:'Pretendard','Apple SD Gothic Neo','Noto Sans KR',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:16px;-webkit-overflow-scrolling:touch;padding-bottom:40px}
+
+/* ── 헤더 ── */
+.header{background:linear-gradient(135deg,#2a1f14 0%,#3d2e1c 100%);border-bottom:1px solid #1a1008;position:sticky;top:0;z-index:30}
+.header-inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:960px;margin:0 auto;padding:0 20px}
+.header-brand{display:flex;align-items:center;gap:11px}
+.header-icon{width:34px;height:34px;background:linear-gradient(135deg,#8a6020,#c9a050);border-radius:10px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.3);font-size:17px}
+.header-title{font-size:18px;font-weight:700;color:#f5e8cc;letter-spacing:.2px;line-height:1.15}
+.header-title small{display:block;font-size:10px;font-weight:600;color:rgba(245,232,204,0.55);letter-spacing:.5px}
+.header-cta{padding:8px 15px;border:1px solid rgba(255,255,255,0.18);border-radius:99px;background:rgba(255,255,255,0.1);font-size:13px;font-weight:700;cursor:pointer;color:#f5e8cc;font-family:inherit;transition:all .15s}
+.header-cta:hover{background:rgba(255,255,255,0.2)}
+
+/* ── 탭 네비게이션 ── */
+.nav{position:sticky;top:60px;z-index:20;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow)}
+.nav-inner{display:flex;max-width:960px;margin:0 auto;padding:0 10px}
+.nav-tab{flex:1;padding:14px 8px;border:none;background:none;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;font-family:inherit;border-bottom:2.5px solid transparent;margin-bottom:-1px;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:6px}
+.nav-tab .nav-ico{font-size:15px}
+.nav-tab.active{color:var(--gold);border-color:var(--gold);font-weight:700}
+.nav-tab:hover:not(.active){color:var(--text2)}
+
+/* ── 레이아웃 ── */
+.wrap{max-width:960px;margin:0 auto;padding:18px 16px 40px}
+.page{display:none}
+.page.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap}
+.section-title{font-size:19px;font-weight:800;letter-spacing:-.3px;color:var(--text)}
+.section-sub{font-size:13px;color:var(--text2);font-weight:500}
+.result-count{font-size:13px;color:var(--text3);font-weight:600}
+.result-count b{color:var(--gold);font-weight:800}
+
+/* ── 필터 바 ── */
+.filterbar{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:14px;margin-bottom:16px}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.filter-field{display:flex;flex-direction:column;gap:5px}
+.filter-lbl{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.3px;padding-left:2px}
+.sel,.inp{width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;font-family:inherit;outline:none;color:var(--text);background:var(--surface2);transition:border-color .15s,box-shadow .15s}
+.sel{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b09a80' stroke-width='3'><path d='M6 9l6 6 6-6'/></svg>");background-repeat:no-repeat;background-position:right 11px center;padding-right:30px;cursor:pointer}
+.sel:focus,.inp:focus{border-color:var(--gold);background:var(--surface);box-shadow:0 0 0 3px rgba(184,147,62,0.14)}
+.inp::placeholder{color:var(--text3)}
+.filter-foot{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:12px;border-top:1px solid var(--border);gap:10px;flex-wrap:wrap}
+.sort-wrap{display:flex;align-items:center;gap:8px;flex:1;min-width:200px}
+.sort-wrap .filter-lbl{white-space:nowrap}
+.sort-wrap .sel{max-width:200px}
+.btn-reset{padding:9px 16px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--surface2);font-size:13px;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0}
+.btn-reset:hover{background:var(--border);color:var(--text)}
+
+/* ── 매물 카드 ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.listing-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;display:flex;flex-direction:column;text-align:left;font-family:inherit;padding:0;position:relative}
+.listing-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--border2)}
+.listing-card:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.lc-top{padding:15px 16px 12px;border-bottom:1px solid var(--border)}
+.lc-badges{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;align-items:center}
+.badge{font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:99px;letter-spacing:.2px;white-space:nowrap}
+.badge-type{background:var(--gold-bg);color:var(--gold);border:1px solid #e3cd93}
+.badge-domestic{background:var(--blue-bg);color:var(--blue);border:1px solid var(--blue-border)}
+.badge-import{background:#f3eefa;color:#6a4a9a;border:1px solid #d4c4ea}
+.badge-mine{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border);margin-left:auto}
+.lc-name{font-size:17px;font-weight:800;color:var(--text);letter-spacing:-.3px;line-height:1.3}
+.lc-trim{font-size:12.5px;color:var(--text2);margin-top:3px;font-weight:500}
+.lc-pay{padding:13px 16px;background:var(--gold-bg);border-bottom:1px solid var(--border);display:flex;align-items:baseline;justify-content:space-between}
+.lc-pay-lbl{font-size:12px;font-weight:700;color:#9a7a3a}
+.lc-pay-val{font-size:21px;font-weight:800;color:#8a6424;letter-spacing:-.5px}
+.lc-pay-val small{font-size:12px;font-weight:600}
+.lc-meta{padding:12px 16px 7px;display:grid;grid-template-columns:1fr 1fr;gap:9px 12px}
+.lc-meta-item{display:flex;flex-direction:column;gap:2px}
+.lc-meta-k{font-size:10.5px;color:var(--text3);font-weight:600}
+.lc-meta-v{font-size:13.5px;color:var(--text);font-weight:700}
+.lc-foot{margin-top:auto;padding:11px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--surface2)}
+.lc-premium{font-size:13px;font-weight:700}
+.lc-premium .pk{font-size:11px;color:var(--text3);font-weight:600;margin-right:4px}
+.prem-pos{color:var(--red)}
+.prem-neg{color:var(--green)}
+.prem-zero{color:var(--text2)}
+.lc-region{font-size:12px;color:var(--text2);font-weight:600;display:flex;align-items:center;gap:3px}
+
+/* ── 빈 상태 ── */
+.empty{text-align:center;padding:56px 20px;color:var(--text3)}
+.empty-ico{font-size:44px;margin-bottom:12px;opacity:.65}
+.empty-title{font-size:16px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.empty-sub{font-size:13.5px;line-height:1.6}
+
+/* ── 모달 (상세) ── */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(20,12,4,0.55);z-index:100;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border-radius:22px 22px 0 0;width:100%;max-width:560px;max-height:92vh;overflow-y:auto;box-shadow:var(--shadow-lg);border:1px solid var(--border);animation:slideUp .28s cubic-bezier(.2,.7,.3,1)}
+@keyframes slideUp{from{transform:translateY(40px);opacity:.4}to{transform:none;opacity:1}}
+.modal-head{position:sticky;top:0;background:linear-gradient(135deg,#2a1f14,#3d2e1c);padding:18px 22px;z-index:2;border-radius:22px 22px 0 0}
+.modal-close{position:absolute;top:14px;right:16px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,0.14);color:#f5e8cc;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+.modal-close:hover{background:rgba(255,255,255,0.26)}
+.md-badges{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap}
+.md-name{font-size:21px;font-weight:800;color:#f5e8cc;letter-spacing:-.3px}
+.md-trim{font-size:13px;color:rgba(245,232,204,0.7);margin-top:3px;font-weight:500}
+.modal-body{padding:20px 22px 28px}
+.md-hero{background:var(--gold-bg);border:1px solid #e3cd93;border-radius:var(--r);padding:16px 18px;display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px}
+.md-hero-lbl{font-size:13px;font-weight:700;color:#9a7a3a}
+.md-hero-val{font-size:26px;font-weight:800;color:#8a6424;letter-spacing:-.6px}
+.md-hero-val small{font-size:13px;font-weight:600}
+.spec-title{font-size:12px;font-weight:800;color:var(--text3);letter-spacing:.5px;margin:0 0 9px 2px;text-transform:uppercase}
+.spec-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:18px}
+.spec-cell{background:var(--surface);padding:11px 13px;display:flex;flex-direction:column;gap:3px}
+.spec-cell.full{grid-column:1 / -1}
+.spec-k{font-size:11px;color:var(--text3);font-weight:600}
+.spec-v{font-size:14px;color:var(--text);font-weight:700;word-break:keep-all}
+.spec-v.hl{color:var(--gold)}
+.md-desc{background:var(--surface2);border-radius:var(--r-sm);padding:13px 15px;font-size:14px;line-height:1.65;color:var(--text2);margin-bottom:18px;white-space:pre-wrap;word-break:break-word}
+.cost-box{background:var(--blue-bg);border:1px solid var(--blue-border);border-radius:var(--r);padding:16px 18px;margin-bottom:16px}
+.cost-box-t{font-size:13px;font-weight:800;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.cost-row{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dashed var(--blue-border)}
+.cost-row:last-child{border-bottom:none}
+.cost-row.total{border-top:2px solid var(--blue-border);border-bottom:none;margin-top:4px;padding-top:11px}
+.cost-k{font-size:13px;color:var(--text2);font-weight:600}
+.cost-k small{display:block;font-size:11px;color:var(--text3);font-weight:500;margin-top:1px}
+.cost-v{font-size:15px;font-weight:700;color:var(--text);text-align:right}
+.cost-row.total .cost-k{font-weight:800;color:var(--text)}
+.cost-row.total .cost-v{font-size:19px;font-weight:800;color:var(--blue)}
+.md-actions{display:flex;gap:9px;margin-top:4px}
+.md-btn{flex:1;padding:13px;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;border:none;transition:all .15s}
+.md-btn-sim{background:linear-gradient(135deg,#7a5018,#c9a050);color:#fff;box-shadow:0 4px 12px rgba(140,90,20,0.3)}
+.md-btn-sim:hover{opacity:.92}
+.md-btn-del{flex:0 0 auto;background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);padding:13px 18px}
+.md-btn-del:hover{background:#fae0e0}
+.md-contact{background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-sm);padding:12px 15px;margin-bottom:16px;font-size:14px;font-weight:600;color:var(--green);display:flex;align-items:center;gap:8px;word-break:break-all}
+
+/* ── 폼 ── */
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:18px;margin-bottom:16px}
+.form-card-t{font-size:14px;font-weight:800;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:7px;padding-bottom:11px;border-bottom:1px solid var(--border)}
+.form-card-t .dot{width:8px;height:8px;border-radius:50%;background:var(--gold)}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:13px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1 / -1}
+.field label{font-size:12px;font-weight:700;color:var(--text2);padding-left:2px}
+.field label .req{color:var(--red);margin-left:2px}
+.field .hint{font-size:11px;color:var(--text3);font-weight:500;padding-left:2px;margin-top:-2px}
+textarea.inp{resize:vertical;min-height:84px;line-height:1.5}
+.field-err{border-color:var(--red)!important;box-shadow:0 0 0 3px rgba(185,64,64,0.12)!important}
+.form-msg{font-size:13px;font-weight:600;min-height:18px;margin-top:2px}
+.form-msg.err{color:var(--red)}
+.form-msg.ok{color:var(--green)}
+.form-actions{display:flex;gap:10px;margin-top:4px}
+.btn-primary{flex:1;padding:14px;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#7a5018,#c9a050);color:#fff;box-shadow:0 4px 12px rgba(140,90,20,0.3);transition:opacity .15s}
+.btn-primary:hover{opacity:.92}
+.btn-ghost{padding:14px 20px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--surface2);color:var(--text2);transition:all .15s}
+.btn-ghost:hover{background:var(--border)}
+
+/* ── 시뮬레이터 ── */
+.sim-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.sim-note{font-size:13px;line-height:1.65;color:var(--text2);background:var(--surface2);border-radius:var(--r-sm);padding:12px 15px;margin-bottom:16px}
+.sim-note b{color:var(--gold)}
+.sim-result-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);overflow:hidden;position:sticky;top:134px}
+.sim-result-head{background:linear-gradient(135deg,#2a1f14,#3d2e1c);padding:16px 20px}
+.sim-result-head-t{font-size:14px;font-weight:800;color:#f5e8cc}
+.sim-result-head-s{font-size:12px;color:rgba(245,232,204,0.6);margin-top:3px}
+.sim-big{padding:20px;text-align:center;background:var(--gold-bg);border-bottom:1px solid var(--border)}
+.sim-big-lbl{font-size:13px;font-weight:700;color:#9a7a3a;margin-bottom:5px}
+.sim-big-val{font-size:32px;font-weight:800;color:#8a6424;letter-spacing:-.8px}
+.sim-big-val small{font-size:15px;font-weight:600}
+.sim-big-sub{font-size:12px;color:#a98a4a;margin-top:6px}
+.sim-breakdown{padding:8px 20px 16px}
+.sim-brow{display:flex;justify-content:space-between;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--border)}
+.sim-brow:last-child{border-bottom:none}
+.sim-bk{font-size:13px;color:var(--text2);font-weight:600}
+.sim-bk small{display:block;font-size:11px;color:var(--text3);font-weight:500;margin-top:1px}
+.sim-bv{font-size:16px;font-weight:800;color:var(--text);text-align:right}
+.sim-bv.sub{color:var(--text2);font-size:15px;font-weight:700}
+.sim-compare{margin:0 20px 18px;padding:14px 16px;background:var(--green-bg);border:1px solid var(--green-border);border-radius:var(--r-sm)}
+.sim-compare-t{font-size:12.5px;font-weight:800;color:var(--green);margin-bottom:7px;display:flex;align-items:center;gap:6px}
+.sim-compare-b{font-size:12.5px;line-height:1.7;color:#3a6a54}
+.sim-compare-b b{color:var(--green)}
+
+/* ── 푸터 ── */
+.disclaimer{max-width:960px;margin:28px auto 0;padding:18px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);font-size:12px;line-height:1.7;color:var(--text2)}
+.disclaimer b{color:var(--text);font-weight:700}
+.footer-brand{text-align:center;font-size:11px;color:var(--text3);margin:18px 0 0;font-weight:500}
+
+@media(max-width:680px){
+  .wrap{padding:16px 14px 32px}
+  .card-grid{grid-template-columns:1fr}
+  .sim-layout{grid-template-columns:1fr}
+  .sim-result-card{position:static}
+  .nav-tab{font-size:13px;padding:13px 4px}
+  .nav-tab .nav-ico{font-size:14px}
+  .spec-grid{grid-template-columns:1fr 1fr}
+  .modal{max-width:100%}
+  .header-title small{display:none}
+}
+@media(max-width:380px){
+  .lc-meta{grid-template-columns:1fr 1fr}
+  .nav-tab span.nav-lbl{font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── 헤더 ── -->
+<div class="header">
+  <div class="header-inner">
+    <div class="header-brand">
+      <div class="header-icon">🔑</div>
+      <div class="header-title">리스승계<small>LEASE TRANSFER MARKET</small></div>
+    </div>
+    <button class="header-cta" onclick="goPage('register')">+ 매물 등록</button>
+  </div>
+</div>
+
+<!-- ── 탭 네비게이션 ── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <button class="nav-tab active" id="tab-list" onclick="goPage('list')"><span class="nav-ico">📋</span><span class="nav-lbl">매물 목록</span></button>
+    <button class="nav-tab" id="tab-register" onclick="goPage('register')"><span class="nav-ico">📝</span><span class="nav-lbl">매물 등록</span></button>
+    <button class="nav-tab" id="tab-sim" onclick="goPage('sim')"><span class="nav-ico">🧮</span><span class="nav-lbl">승계 시뮬레이터</span></button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <!-- ══════ 매물 목록 ══════ -->
+  <section class="page active" id="page-list">
+    <div class="section-head">
+      <div>
+        <div class="section-title">리스 승계 매물</div>
+        <div class="section-sub">잔여 계약을 이어받아 선수금·초기비용 부담을 줄이세요</div>
+      </div>
+      <div class="result-count"><b id="resultCount">0</b>건</div>
+    </div>
+
+    <div class="filterbar">
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label class="filter-lbl" for="fBrand">제조사</label>
+          <select class="sel" id="fBrand" onchange="renderList()"></select>
+        </div>
+        <div class="filter-field">
+          <label class="filter-lbl" for="fType">리스유형</label>
+          <select class="sel" id="fType" onchange="renderList()">
+            <option value="">전체</option>
+            <option value="운용리스">운용리스</option>
+            <option value="금융리스">금융리스</option>
+            <option value="장기렌터카">장기렌터카</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label class="filter-lbl" for="fRegion">지역</label>
+          <select class="sel" id="fRegion" onchange="renderList()"></select>
+        </div>
+        <div class="filter-field">
+          <label class="filter-lbl" for="fPay">월 납입금</label>
+          <select class="sel" id="fPay" onchange="renderList()">
+            <option value="">전체</option>
+            <option value="0-500000">50만원 이하</option>
+            <option value="500000-800000">50~80만원</option>
+            <option value="800000-1100000">80~110만원</option>
+            <option value="1100000-999999999">110만원 이상</option>
+          </select>
+        </div>
+        <div class="filter-field">
+          <label class="filter-lbl" for="fRemain">잔여기간</label>
+          <select class="sel" id="fRemain" onchange="renderList()">
+            <option value="">전체</option>
+            <option value="0-12">12개월 이하</option>
+            <option value="12-24">12~24개월</option>
+            <option value="24-36">24~36개월</option>
+            <option value="36-999">36개월 이상</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-foot">
+        <div class="sort-wrap">
+          <label class="filter-lbl" for="fSort">정렬</label>
+          <select class="sel" id="fSort" onchange="renderList()">
+            <option value="latest">최신순</option>
+            <option value="payLow">월 납입금 낮은순</option>
+            <option value="remainShort">잔여기간 짧은순</option>
+            <option value="premLow">승계 프리미엄 낮은순</option>
+          </select>
+        </div>
+        <button class="btn-reset" onclick="resetFilters()">필터 초기화</button>
+      </div>
+    </div>
+
+    <div id="listContainer"></div>
+  </section>
+
+  <!-- ══════ 매물 등록 ══════ -->
+  <section class="page" id="page-register">
+    <div class="section-head">
+      <div>
+        <div class="section-title">매물 등록</div>
+        <div class="section-sub">보유 중인 리스 차량의 승계 조건을 등록하세요</div>
+      </div>
+    </div>
+
+    <form id="regForm" onsubmit="return submitListing(event)" novalidate>
+      <div class="form-card">
+        <div class="form-card-t"><span class="dot"></span>차량 정보</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="r_brand">제조사<span class="req">*</span></label>
+            <select class="sel" id="r_brand"></select>
+          </div>
+          <div class="field">
+            <label for="r_model">모델명<span class="req">*</span></label>
+            <input class="inp" id="r_model" placeholder="예: 그랜저 GN7" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="r_trim">트림</label>
+            <input class="inp" id="r_trim" placeholder="예: 2.5 가솔린 프리미엄" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="r_year">연식<span class="req">*</span></label>
+            <input class="inp" id="r_year" inputmode="numeric" placeholder="예: 2023" maxlength="4">
+          </div>
+          <div class="field">
+            <label for="r_mileage">주행거리 (km)<span class="req">*</span></label>
+            <input class="inp" id="r_mileage" inputmode="numeric" placeholder="예: 25,000" oninput="fmtNum(this)">
+          </div>
+          <div class="field">
+            <label for="r_color">차량 색상</label>
+            <input class="inp" id="r_color" placeholder="예: 쉬머링 실버" autocomplete="off">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-t"><span class="dot"></span>리스 계약 정보</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="r_company">리스사/캐피탈사<span class="req">*</span></label>
+            <select class="sel" id="r_company"></select>
+          </div>
+          <div class="field">
+            <label for="r_leaseType">리스유형<span class="req">*</span></label>
+            <select class="sel" id="r_leaseType">
+              <option value="운용리스">운용리스</option>
+              <option value="금융리스">금융리스</option>
+              <option value="장기렌터카">장기렌터카</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="r_monthly">월 납입금 (원)<span class="req">*</span></label>
+            <input class="inp" id="r_monthly" inputmode="numeric" placeholder="예: 890,000" oninput="fmtNum(this)">
+          </div>
+          <div class="field">
+            <label for="r_total">총 계약기간 (개월)<span class="req">*</span></label>
+            <input class="inp" id="r_total" inputmode="numeric" placeholder="예: 48" maxlength="3">
+          </div>
+          <div class="field">
+            <label for="r_remain">잔여 개월수<span class="req">*</span></label>
+            <input class="inp" id="r_remain" inputmode="numeric" placeholder="예: 22" maxlength="3">
+          </div>
+          <div class="field">
+            <label for="r_maturity">만기처리</label>
+            <select class="sel" id="r_maturity">
+              <option value="반납">반납</option>
+              <option value="인수">인수</option>
+              <option value="재리스">재리스</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-t"><span class="dot"></span>비용 / 승계 조건</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="r_deposit">보증금 (원)</label>
+            <input class="inp" id="r_deposit" inputmode="numeric" placeholder="예: 6,000,000" oninput="fmtNum(this)">
+          </div>
+          <div class="field">
+            <label for="r_prepaid">선수금 (원)</label>
+            <input class="inp" id="r_prepaid" inputmode="numeric" placeholder="예: 4,000,000" oninput="fmtNum(this)">
+          </div>
+          <div class="field">
+            <label for="r_premium">승계 프리미엄 / 인수금 (원)</label>
+            <input class="inp" id="r_premium" inputmode="text" placeholder="예: 500,000 (지원금은 -)" oninput="fmtSigned(this)">
+            <div class="hint">양수=인수자 지불 · 음수(-)=양도자 지원금</div>
+          </div>
+          <div class="field">
+            <label for="r_residual">잔존가치 (원)</label>
+            <input class="inp" id="r_residual" inputmode="numeric" placeholder="예: 19,000,000" oninput="fmtNum(this)">
+          </div>
+          <div class="field">
+            <label for="r_mileLimit">연 약정 주행거리 (km)</label>
+            <input class="inp" id="r_mileLimit" inputmode="numeric" placeholder="예: 20,000" oninput="fmtNum(this)">
+          </div>
+          <div class="field">
+            <label for="r_excessFee">초과 km당 비용 (원)</label>
+            <input class="inp" id="r_excessFee" inputmode="numeric" placeholder="예: 110" oninput="fmtNum(this)">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-t"><span class="dot"></span>지역 · 연락 · 설명</div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="r_region">지역<span class="req">*</span></label>
+            <select class="sel" id="r_region"></select>
+          </div>
+          <div class="field">
+            <label for="r_contact">연락방법<span class="req">*</span></label>
+            <input class="inp" id="r_contact" placeholder="예: 오픈채팅 / 문자 문의" autocomplete="off">
+            <div class="hint">실제 개인정보 대신 오픈채팅 링크 등 권장</div>
+          </div>
+          <div class="field full">
+            <label for="r_desc">설명</label>
+            <textarea class="inp" id="r_desc" placeholder="차량 상태, 승계 조건, 특이사항 등을 자유롭게 작성하세요."></textarea>
+          </div>
+        </div>
+        <div class="form-msg" id="regMsg"></div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">매물 등록하기</button>
+          <button type="button" class="btn-ghost" onclick="resetForm()">초기화</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <!-- ══════ 승계 시뮬레이터 ══════ -->
+  <section class="page" id="page-sim">
+    <div class="section-head">
+      <div>
+        <div class="section-title">승계 시뮬레이터</div>
+        <div class="section-sub">인수 시 실부담 비용을 미리 계산해 보세요</div>
+      </div>
+    </div>
+
+    <div class="sim-note">
+      매물을 선택하면 조건이 자동 입력됩니다. 직접 값을 수정할 수도 있어요. 모든 결과는 <b>참고용 추정치</b>이며 실제 비용은 리스사 심사 및 계약 조건에 따라 달라집니다.
+    </div>
+
+    <div class="sim-layout">
+      <div>
+        <div class="form-card">
+          <div class="form-card-t"><span class="dot"></span>입력 값</div>
+          <div class="form-grid">
+            <div class="field full">
+              <label for="s_listing">매물 선택</label>
+              <select class="sel" id="s_listing" onchange="applySimListing()"></select>
+            </div>
+            <div class="field">
+              <label for="s_premium">승계 프리미엄 (원)</label>
+              <input class="inp" id="s_premium" inputmode="text" placeholder="0" oninput="fmtSigned(this);calcSim()">
+              <div class="hint">지원금은 음수(-)로 입력</div>
+            </div>
+            <div class="field">
+              <label for="s_deposit">보증금 승계액 (원)</label>
+              <input class="inp" id="s_deposit" inputmode="numeric" placeholder="0" oninput="fmtNum(this);calcSim()">
+            </div>
+            <div class="field">
+              <label for="s_transfer">명의이전·이전등록 비용 (원)</label>
+              <input class="inp" id="s_transfer" inputmode="numeric" placeholder="300,000" oninput="fmtNum(this);calcSim()">
+              <div class="hint">기본 추정치 30만원</div>
+            </div>
+            <div class="field">
+              <label for="s_monthly">월 납입금 (원)</label>
+              <input class="inp" id="s_monthly" inputmode="numeric" placeholder="0" oninput="fmtNum(this);calcSim()">
+            </div>
+            <div class="field">
+              <label for="s_remain">잔여 개월수</label>
+              <input class="inp" id="s_remain" inputmode="numeric" placeholder="0" maxlength="3" oninput="fmtNum(this);calcSim()">
+            </div>
+          </div>
+          <div class="form-actions" style="margin-top:14px">
+            <button type="button" class="btn-ghost" style="flex:1" onclick="resetSim()">입력 초기화</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sim-result-card">
+        <div class="sim-result-head">
+          <div class="sim-result-head-t">총 부담금 계산 결과</div>
+          <div class="sim-result-head-s">초기 인수비용 + 잔여기간 월납입 합계</div>
+        </div>
+        <div class="sim-big">
+          <div class="sim-big-lbl">총 부담금</div>
+          <div class="sim-big-val" id="simTotal">0<small>원</small></div>
+          <div class="sim-big-sub" id="simMonthlyAvg">월 평균 실부담 0원</div>
+        </div>
+        <div class="sim-breakdown">
+          <div class="sim-brow">
+            <div class="sim-bk">초기 인수비용 합계<small>프리미엄 + 보증금 + 명의이전</small></div>
+            <div class="sim-bv" id="simInitial">0원</div>
+          </div>
+          <div class="sim-brow">
+            <div class="sim-bk">잔여기간 총 월납입<small>월 납입금 × 잔여 개월</small></div>
+            <div class="sim-bv sub" id="simRemainPay">0원</div>
+          </div>
+          <div class="sim-brow">
+            <div class="sim-bk">월 평균 실부담<small>총 부담금 ÷ 잔여 개월</small></div>
+            <div class="sim-bv sub" id="simAvg">0원</div>
+          </div>
+        </div>
+        <div class="sim-compare">
+          <div class="sim-compare-t">💡 신규 리스 대비 리스승계 장점</div>
+          <div class="sim-compare-b" id="simCompare">
+            리스승계는 <b>선수금·초기비용 부담이 적고</b> 남은 계약기간만 책임지므로 <b>약정기간이 짧습니다.</b> 값을 입력하면 비교 내용이 표시됩니다.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 면책 고지 ── -->
+  <div class="disclaimer">
+    <b>안내</b> · 실제 리스 승계는 리스사(캐피탈사)의 심사·승인이 필요하며, 본 서비스의 계산은 참고용 추정치입니다. 명의이전 비용, 세금, 잔존가치 등은 계약 조건에 따라 달라질 수 있습니다. 매물 정보는 등록자가 입력한 내용으로 서비스는 그 정확성을 보증하지 않습니다.
+  </div>
+  <div class="footer-brand">리스승계 서비스 · 자금관리 패밀리 앱</div>
+</div>
+
+<!-- ── 상세 모달 ── -->
+<div class="modal-bg" id="detailModal" onclick="if(event.target===this)closeDetail()">
+  <div class="modal" id="detailModalInner"></div>
+</div>
+
+<script>
+/* ══════════════════════════════
+   리스승계 서비스 — vanilla JS
+══════════════════════════════ */
+var LS_KEY = 'lease_listings_v1';
+var LS_SEEDED = 'lease_seeded_v1';
+
+var BRANDS = ['현대','기아','제네시스','BMW','벤츠','테슬라','아우디'];
+var IMPORT_BRANDS = ['BMW','벤츠','테슬라','아우디'];
+var COMPANIES = ['현대캐피탈','KB캐피탈','롯데렌탈','하나캐피탈','신한카드','우리금융캐피탈'];
+var REGIONS = ['서울','경기','인천','부산','대구','대전','광주','울산','세종','강원','충청','전라','경상','제주'];
+
+var listings = [];
+
+/* ── 포맷 유틸 ── */
+function fmt(n){return Number(n||0).toLocaleString('ko-KR');}
+function fmtNum(el){var r=el.value.replace(/[^0-9]/g,'');el.value=r?Number(r).toLocaleString('ko-KR'):'';}
+function fmtSigned(el){
+  var neg = el.value.trim().charAt(0)==='-';
+  var r = el.value.replace(/[^0-9]/g,'');
+  el.value = (r ? (neg?'-':'')+Number(r).toLocaleString('ko-KR') : (neg?'-':''));
+}
+function parseAmt(s){
+  if(typeof s!=='string') return Number(s)||0;
+  var neg = s.trim().charAt(0)==='-';
+  var n = parseInt(s.replace(/[^0-9]/g,''))||0;
+  return neg ? -n : n;
+}
+/* 금액을 만원 단위로 축약 (카드 등 좁은 공간용) */
+function fmtMan(n){
+  n = Number(n||0);
+  var sign = n<0?'-':'';
+  var a = Math.abs(n);
+  if(a>=100000000){ var eok=a/100000000; return sign+(Math.round(eok*10)/10)+'억원'; }
+  if(a>=10000){ var man=Math.round(a/10000); return sign+fmt(man)+'만원'; }
+  return sign+fmt(a)+'원';
+}
+function isImport(brand){return IMPORT_BRANDS.indexOf(brand)>=0;}
+
+/* ── 시드 데이터 ── */
+function seedData(){
+  var now = Date.now();
+  var h = 3600000;
+  return [
+    { id:'seed1', createdAt: now-2*h,
+      brand:'현대', model:'아반떼 CN7', trim:'1.6 가솔린 인스퍼레이션', year:2023,
+      mileage:24500, color:'퍼플펄', company:'현대캐피탈', leaseType:'운용리스',
+      monthlyPayment:450000, totalMonths:48, remainingMonths:30,
+      deposit:3000000, prepaid:2000000, premium:500000,
+      annualMileageLimit:20000, excessMileageFee:100,
+      maturity:'반납', residualValue:9500000,
+      region:'서울', contact:'오픈채팅 "아반떼승계"',
+      description:'출퇴근용으로 조심히 탄 차량입니다. 무사고·비흡연 차량이며 전 좌석 가죽시트입니다. 잔여 30개월 승계하실 분 찾습니다.' },
+
+    { id:'seed2', createdAt: now-6*h,
+      brand:'기아', model:'쏘렌토 MQ4', trim:'1.6 하이브리드 시그니처', year:2022,
+      mileage:42000, color:'그래비티 블루', company:'KB캐피탈', leaseType:'금융리스',
+      monthlyPayment:780000, totalMonths:60, remainingMonths:38,
+      deposit:5000000, prepaid:3000000, premium:1200000,
+      annualMileageLimit:25000, excessMileageFee:120,
+      maturity:'인수', residualValue:16000000,
+      region:'경기', contact:'문자 문의 환영',
+      description:'패밀리 SUV 쏘렌토 하이브리드입니다. 연비 좋고 만기 시 인수 가능한 조건이라 장기 운행하실 분께 추천드립니다. 썬루프·HUD 옵션 포함.' },
+
+    { id:'seed3', createdAt: now-11*h,
+      brand:'현대', model:'그랜저 GN7', trim:'2.5 가솔린 캘리그래피', year:2023,
+      mileage:31000, color:'쉬머링 실버', company:'현대캐피탈', leaseType:'운용리스',
+      monthlyPayment:890000, totalMonths:48, remainingMonths:22,
+      deposit:6000000, prepaid:4000000, premium:-800000,
+      annualMileageLimit:20000, excessMileageFee:110,
+      maturity:'반납', residualValue:19000000,
+      region:'인천', contact:'오픈채팅 링크 제공',
+      description:'사정상 빠르게 승계합니다. 양도자 지원금 80만원 지급 조건! 풀옵션 캘리그래피 트림이며 잔여 22개월로 부담이 적습니다.' },
+
+    { id:'seed4', createdAt: now-18*h,
+      brand:'기아', model:'카니발 KA4', trim:'3.5 가솔린 9인승 노블레스', year:2022,
+      mileage:55000, color:'어비스 블랙펄', company:'롯데렌탈', leaseType:'장기렌터카',
+      monthlyPayment:950000, totalMonths:48, remainingMonths:18,
+      deposit:4000000, prepaid:2500000, premium:300000,
+      annualMileageLimit:30000, excessMileageFee:90,
+      maturity:'반납', residualValue:0,
+      region:'부산', contact:'오픈채팅 "카니발9인"',
+      description:'대가족·법인용 9인승 카니발입니다. 장기렌터카라 자동차세·보험 포함 조건이라 관리가 편합니다. 잔여 18개월 단기 승계 가능.' },
+
+    { id:'seed5', createdAt: now-26*h,
+      brand:'제네시스', model:'G80 RG3', trim:'2.5T AWD 프레스티지', year:2022,
+      mileage:28000, color:'마칼루 그레이', company:'하나캐피탈', leaseType:'운용리스',
+      monthlyPayment:1250000, totalMonths:60, remainingMonths:40,
+      deposit:8000000, prepaid:5000000, premium:2000000,
+      annualMileageLimit:20000, excessMileageFee:150,
+      maturity:'인수', residualValue:32000000,
+      region:'서울', contact:'오픈채팅 상담',
+      description:'제네시스 G80 2.5T 사륜 프레스티지 풀옵션입니다. 렉시콘 사운드·나파가죽·후석 모니터 포함. 법인 승계 가능하며 세금계산서 발행됩니다.' },
+
+    { id:'seed6', createdAt: now-34*h,
+      brand:'BMW', model:'520i', trim:'M 스포츠 패키지', year:2022,
+      mileage:36000, color:'알파인 화이트', company:'하나캐피탈', leaseType:'운용리스',
+      monthlyPayment:980000, totalMonths:48, remainingMonths:26,
+      deposit:7000000, prepaid:6000000, premium:1500000,
+      annualMileageLimit:20000, excessMileageFee:180,
+      maturity:'반납', residualValue:28000000,
+      region:'경기', contact:'오픈채팅 "520i승계"',
+      description:'BMW 5시리즈 520i M스포츠입니다. 수입차 리스 부담 없이 월 98만원에 이용 가능. 하만카돈·어댑티브 LED 포함. 정식 서비스센터 이력 관리.' },
+
+    { id:'seed7', createdAt: now-45*h,
+      brand:'벤츠', model:'E250', trim:'아방가르드', year:2023,
+      mileage:22000, color:'옵시디언 블랙', company:'신한카드', leaseType:'금융리스',
+      monthlyPayment:1150000, totalMonths:60, remainingMonths:44,
+      deposit:9000000, prepaid:7000000, premium:-500000,
+      annualMileageLimit:20000, excessMileageFee:200,
+      maturity:'인수', residualValue:34000000,
+      region:'서울', contact:'문자·오픈채팅',
+      description:'급처분으로 양도 지원금 50만원 드립니다. 벤츠 E250 아방가르드 신형이며 부담금 승계하시면 됩니다. 버메스터 사운드·파노라마 썬루프.' },
+
+    { id:'seed8', createdAt: now-60*h,
+      brand:'테슬라', model:'모델3', trim:'롱레인지 AWD', year:2023,
+      mileage:19000, color:'펄 화이트 멀티코트', company:'롯데렌탈', leaseType:'운용리스',
+      monthlyPayment:720000, totalMonths:48, remainingMonths:20,
+      deposit:4000000, prepaid:0, premium:1000000,
+      annualMileageLimit:20000, excessMileageFee:130,
+      maturity:'반납', residualValue:21000000,
+      region:'서울', contact:'오픈채팅 "모델3LR"',
+      description:'테슬라 모델3 롱레인지입니다. FSD 미포함이나 오토파일럿 기본 탑재. 전기차라 유지비 저렴하고 잔여 20개월로 짧게 경험해보실 분께 추천.' }
+  ];
+}
+
+function loadData(){
+  try{
+    var raw = localStorage.getItem(LS_KEY);
+    if(raw){ listings = JSON.parse(raw)||[]; }
+    else { listings = []; }
+  }catch(e){ listings = []; }
+
+  if(!localStorage.getItem(LS_SEEDED)){
+    // 최초 1회만 시드
+    var seeds = seedData();
+    // 이미 저장된 데이터가 있으면 앞에 붙이지 않고 시드만 넣기
+    if(listings.length===0){ listings = seeds; }
+    else { listings = listings.concat(seeds); }
+    localStorage.setItem(LS_SEEDED,'1');
+    saveData();
+  }
+}
+function saveData(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(listings)); }catch(e){}
+}
+
+/* ── 페이지 전환 ── */
+function goPage(name){
+  ['list','register','sim'].forEach(function(p){
+    document.getElementById('page-'+p).classList.toggle('active', p===name);
+    document.getElementById('tab-'+p).classList.toggle('active', p===name);
+  });
+  if(name==='sim'){ populateSimSelect(); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+/* ── 셀렉트 채우기 ── */
+function fillSelect(el, items, allLabel){
+  var html = '';
+  if(allLabel!==null && allLabel!==undefined) html += '<option value="">'+allLabel+'</option>';
+  items.forEach(function(it){ html += '<option value="'+it+'">'+it+'</option>'; });
+  el.innerHTML = html;
+}
+function initSelects(){
+  // 필터 — 제조사 (국산/수입 그룹)
+  var fb = document.getElementById('fBrand');
+  var fbHtml = '<option value="">전체 제조사</option><option value="__dom">국산 전체</option><option value="__imp">수입 전체</option>';
+  BRANDS.forEach(function(b){ fbHtml += '<option value="'+b+'">'+b+'</option>'; });
+  fb.innerHTML = fbHtml;
+  fillSelect(document.getElementById('fRegion'), REGIONS, '전체 지역');
+  // 등록 폼
+  fillSelect(document.getElementById('r_brand'), BRANDS, null);
+  fillSelect(document.getElementById('r_company'), COMPANIES, null);
+  fillSelect(document.getElementById('r_region'), REGIONS, null);
+}
+
+/* ══════════════════════════════
+   매물 목록 렌더링
+══════════════════════════════ */
+function getFiltered(){
+  var brand = document.getElementById('fBrand').value;
+  var type = document.getElementById('fType').value;
+  var region = document.getElementById('fRegion').value;
+  var pay = document.getElementById('fPay').value;
+  var remain = document.getElementById('fRemain').value;
+  var sort = document.getElementById('fSort').value;
+
+  var arr = listings.slice();
+
+  arr = arr.filter(function(l){
+    if(brand==='__dom'){ if(isImport(l.brand)) return false; }
+    else if(brand==='__imp'){ if(!isImport(l.brand)) return false; }
+    else if(brand){ if(l.brand!==brand) return false; }
+    if(type && l.leaseType!==type) return false;
+    if(region && l.region!==region) return false;
+    if(pay){ var pr=pay.split('-'); if(l.monthlyPayment<+pr[0] || l.monthlyPayment>+pr[1]) return false; }
+    if(remain){ var rr=remain.split('-'); if(l.remainingMonths<+rr[0] || l.remainingMonths>+rr[1]) return false; }
+    return true;
+  });
+
+  arr.sort(function(a,b){
+    if(sort==='payLow') return a.monthlyPayment-b.monthlyPayment;
+    if(sort==='remainShort') return a.remainingMonths-b.remainingMonths;
+    if(sort==='premLow') return a.premium-b.premium;
+    return b.createdAt-a.createdAt; // latest
+  });
+  return arr;
+}
+
+function premiumHtml(p){
+  if(p>0) return '<span class="lc-premium prem-pos"><span class="pk">프리미엄</span>+'+fmtMan(p)+'</span>';
+  if(p<0) return '<span class="lc-premium prem-neg"><span class="pk">지원금</span>'+fmtMan(Math.abs(p))+'</span>';
+  return '<span class="lc-premium prem-zero"><span class="pk">프리미엄</span>없음</span>';
+}
+
+function renderList(){
+  var arr = getFiltered();
+  document.getElementById('resultCount').textContent = arr.length;
+  var c = document.getElementById('listContainer');
+
+  if(arr.length===0){
+    c.innerHTML = '<div class="empty"><div class="empty-ico">🔍</div>'+
+      '<div class="empty-title">조건에 맞는 매물이 없습니다</div>'+
+      '<div class="empty-sub">필터를 조정하거나 새 매물을 등록해 보세요.</div></div>';
+    return;
+  }
+
+  var html = '<div class="card-grid">';
+  arr.forEach(function(l){
+    var impBadge = isImport(l.brand)
+      ? '<span class="badge badge-import">수입</span>'
+      : '<span class="badge badge-domestic">국산</span>';
+    var mineBadge = l.userAdded ? '<span class="badge badge-mine">내 등록</span>' : '';
+    html += '<button class="listing-card" onclick="openDetail(\''+l.id+'\')" aria-label="'+esc(l.brand+' '+l.model)+' 상세 보기">'+
+      '<div class="lc-top">'+
+        '<div class="lc-badges">'+
+          '<span class="badge badge-type">'+esc(l.leaseType)+'</span>'+impBadge+mineBadge+
+        '</div>'+
+        '<div class="lc-name">'+esc(l.brand+' '+l.model)+' <span style="font-weight:600;color:var(--text2);font-size:14px">'+l.year+'년식</span></div>'+
+        (l.trim?'<div class="lc-trim">'+esc(l.trim)+'</div>':'')+
+      '</div>'+
+      '<div class="lc-pay">'+
+        '<span class="lc-pay-lbl">월 납입금</span>'+
+        '<span class="lc-pay-val">'+fmt(l.monthlyPayment)+'<small>원</small></span>'+
+      '</div>'+
+      '<div class="lc-meta">'+
+        '<div class="lc-meta-item"><span class="lc-meta-k">잔여 기간</span><span class="lc-meta-v">'+l.remainingMonths+'개월</span></div>'+
+        '<div class="lc-meta-item"><span class="lc-meta-k">주행거리</span><span class="lc-meta-v">'+fmt(l.mileage)+'km</span></div>'+
+      '</div>'+
+      '<div class="lc-foot">'+
+        premiumHtml(l.premium)+
+        '<span class="lc-region">📍'+esc(l.region)+'</span>'+
+      '</div>'+
+    '</button>';
+  });
+  html += '</div>';
+  c.innerHTML = html;
+}
+
+function resetFilters(){
+  ['fBrand','fType','fRegion','fPay','fRemain'].forEach(function(id){ document.getElementById(id).value=''; });
+  document.getElementById('fSort').value='latest';
+  renderList();
+}
+
+/* HTML 이스케이프 */
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+/* ══════════════════════════════
+   상세 모달
+══════════════════════════════ */
+function findListing(id){
+  for(var i=0;i<listings.length;i++){ if(listings[i].id===id) return listings[i]; }
+  return null;
+}
+
+function openDetail(id){
+  var l = findListing(id);
+  if(!l) return;
+
+  var initialCost = (l.premium||0) + (l.deposit||0); // 승계 프리미엄 + 보증금 승계 추정
+  var totalRemainPay = (l.monthlyPayment||0) * (l.remainingMonths||0);
+
+  var premRow = l.premium>0
+    ? '<div class="cost-row"><div class="cost-k">승계 프리미엄 (인수금)</div><div class="cost-v prem-pos">+'+fmt(l.premium)+'원</div></div>'
+    : (l.premium<0
+      ? '<div class="cost-row"><div class="cost-k">양도자 지원금</div><div class="cost-v prem-neg">'+fmt(l.premium)+'원</div></div>'
+      : '<div class="cost-row"><div class="cost-k">승계 프리미엄</div><div class="cost-v">없음</div></div>');
+
+  var impBadge = isImport(l.brand)
+    ? '<span class="badge badge-import">수입</span>'
+    : '<span class="badge badge-domestic">국산</span>';
+
+  function cell(k,v,hl){ return '<div class="spec-cell"><span class="spec-k">'+k+'</span><span class="spec-v'+(hl?' hl':'')+'">'+v+'</span></div>'; }
+
+  var residualTxt = l.residualValue>0 ? fmt(l.residualValue)+'원' : '—';
+  var mileLimitTxt = l.annualMileageLimit>0 ? '연 '+fmt(l.annualMileageLimit)+'km' : '제한 없음';
+  var excessTxt = l.excessMileageFee>0 ? 'km당 '+fmt(l.excessMileageFee)+'원' : '—';
+
+  var html =
+    '<div class="modal-head">'+
+      '<button class="modal-close" onclick="closeDetail()" aria-label="닫기">✕</button>'+
+      '<div class="md-badges"><span class="badge badge-type">'+esc(l.leaseType)+'</span>'+impBadge+(l.userAdded?'<span class="badge badge-mine">내 등록</span>':'')+'</div>'+
+      '<div class="md-name">'+esc(l.brand+' '+l.model)+' <span style="font-weight:600;color:rgba(245,232,204,0.7)">'+l.year+'년식</span></div>'+
+      (l.trim?'<div class="md-trim">'+esc(l.trim)+'</div>':'')+
+    '</div>'+
+    '<div class="modal-body">'+
+      '<div class="md-hero"><span class="md-hero-lbl">월 납입금</span><span class="md-hero-val">'+fmt(l.monthlyPayment)+'<small>원</small></span></div>'+
+
+      '<div class="spec-title">계약 정보</div>'+
+      '<div class="spec-grid">'+
+        cell('리스사/캐피탈', esc(l.company))+
+        cell('리스유형', esc(l.leaseType))+
+        cell('총 계약기간', l.totalMonths+'개월')+
+        cell('잔여 개월수', l.remainingMonths+'개월', true)+
+        cell('만기처리', esc(l.maturity||'—'))+
+        cell('잔존가치', residualTxt)+
+      '</div>'+
+
+      '<div class="spec-title">차량 정보</div>'+
+      '<div class="spec-grid">'+
+        cell('연식', l.year+'년')+
+        cell('주행거리', fmt(l.mileage)+'km')+
+        cell('색상', esc(l.color||'—'))+
+        cell('지역', esc(l.region))+
+        cell('약정 주행거리', mileLimitTxt)+
+        cell('초과 주행 비용', excessTxt)+
+      '</div>'+
+
+      '<div class="spec-title">비용 정보</div>'+
+      '<div class="spec-grid">'+
+        cell('보증금', fmt(l.deposit||0)+'원')+
+        cell('선수금', fmt(l.prepaid||0)+'원')+
+      '</div>'+
+
+      (l.description?'<div class="spec-title">설명</div><div class="md-desc">'+esc(l.description)+'</div>':'')+
+
+      '<div class="md-contact">💬 연락방법 · '+esc(l.contact||'—')+'</div>'+
+
+      '<div class="cost-box">'+
+        '<div class="cost-box-t">📊 인수 비용 요약 <span style="font-weight:500;color:var(--text3);font-size:11px">(참고용 추정)</span></div>'+
+        premRow+
+        '<div class="cost-row"><div class="cost-k">보증금 승계 추정</div><div class="cost-v">'+fmt(l.deposit||0)+'원</div></div>'+
+        '<div class="cost-row total"><div class="cost-k">인수 시점 예상 초기비용</div><div class="cost-v">'+fmt(initialCost)+'원</div></div>'+
+        '<div class="cost-row"><div class="cost-k">잔여기간 총 납입액<small>'+fmt(l.monthlyPayment)+'원 × '+l.remainingMonths+'개월</small></div><div class="cost-v">'+fmt(totalRemainPay)+'원</div></div>'+
+      '</div>'+
+
+      '<div class="md-actions">'+
+        '<button class="md-btn md-btn-sim" onclick="openSimFromListing(\''+l.id+'\')">🧮 시뮬레이터로 계산</button>'+
+        (l.userAdded?'<button class="md-btn md-btn-del" onclick="deleteListing(\''+l.id+'\')">삭제</button>':'')+
+      '</div>'+
+    '</div>';
+
+  document.getElementById('detailModalInner').innerHTML = html;
+  document.getElementById('detailModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeDetail(){
+  document.getElementById('detailModal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function deleteListing(id){
+  var l = findListing(id);
+  if(!l || !l.userAdded) return;
+  if(!confirm('이 매물을 삭제하시겠습니까?')) return;
+  listings = listings.filter(function(x){ return x.id!==id; });
+  saveData();
+  closeDetail();
+  renderList();
+  populateSimSelect();
+}
+
+/* ══════════════════════════════
+   매물 등록
+══════════════════════════════ */
+function markErr(id, on){
+  var el=document.getElementById(id);
+  if(el) el.classList.toggle('field-err', !!on);
+}
+function clearErrs(){
+  document.querySelectorAll('.field-err').forEach(function(e){ e.classList.remove('field-err'); });
+}
+function submitListing(ev){
+  ev.preventDefault();
+  clearErrs();
+  var msg = document.getElementById('regMsg');
+  msg.className='form-msg';
+
+  var g = function(id){ return document.getElementById(id).value.trim(); };
+  var brand = g('r_brand');
+  var model = g('r_model');
+  var year = parseInt(g('r_year'))||0;
+  var mileage = parseAmt(g('r_mileage'));
+  var company = g('r_company');
+  var leaseType = g('r_leaseType');
+  var monthly = parseAmt(g('r_monthly'));
+  var total = parseInt(g('r_total'))||0;
+  var remain = parseInt(g('r_remain'))||0;
+  var region = g('r_region');
+  var contact = g('r_contact');
+
+  var errs=[];
+  if(!model){ errs.push('r_model'); }
+  if(!(year>=1990 && year<=2030)){ errs.push('r_year'); }
+  if(!(mileage>0)){ errs.push('r_mileage'); }
+  if(!(monthly>0)){ errs.push('r_monthly'); }
+  if(!(total>0 && total<=120)){ errs.push('r_total'); }
+  if(!(remain>0)){ errs.push('r_remain'); }
+  if(!contact){ errs.push('r_contact'); }
+  if(remain>total && total>0){ errs.push('r_remain'); errs.push('r_total'); }
+
+  if(errs.length){
+    errs.forEach(function(id){ markErr(id,true); });
+    msg.className='form-msg err';
+    if(remain>total && total>0) msg.textContent='잔여 개월수는 총 계약기간보다 클 수 없습니다.';
+    else msg.textContent='필수 항목(*)을 올바르게 입력해 주세요.';
+    return false;
+  }
+
+  var obj = {
+    id: 'u'+Date.now()+Math.floor(Math.random()*1000),
+    createdAt: Date.now(),
+    userAdded: true,
+    brand: brand,
+    model: model,
+    trim: g('r_trim'),
+    year: year,
+    mileage: mileage,
+    color: g('r_color'),
+    company: company,
+    leaseType: leaseType,
+    monthlyPayment: monthly,
+    totalMonths: total,
+    remainingMonths: remain,
+    deposit: parseAmt(g('r_deposit')),
+    prepaid: parseAmt(g('r_prepaid')),
+    premium: parseAmt(g('r_premium')),
+    annualMileageLimit: parseAmt(g('r_mileLimit')),
+    excessMileageFee: parseAmt(g('r_excessFee')),
+    maturity: g('r_maturity'),
+    residualValue: parseAmt(g('r_residual')),
+    region: region,
+    contact: contact,
+    description: document.getElementById('r_desc').value.trim()
+  };
+
+  listings.unshift(obj);
+  saveData();
+  populateSimSelect();
+
+  msg.className='form-msg ok';
+  msg.textContent='✓ 매물이 등록되었습니다. 목록으로 이동합니다.';
+  resetForm(true);
+  setTimeout(function(){
+    goPage('list');
+    resetFilters();
+  }, 700);
+  return false;
+}
+function resetForm(keepMsg){
+  document.getElementById('regForm').reset();
+  document.getElementById('r_brand').selectedIndex=0;
+  document.getElementById('r_company').selectedIndex=0;
+  document.getElementById('r_region').selectedIndex=0;
+  document.getElementById('r_leaseType').selectedIndex=0;
+  document.getElementById('r_maturity').selectedIndex=0;
+  clearErrs();
+  if(!keepMsg){ var m=document.getElementById('regMsg'); m.className='form-msg'; m.textContent=''; }
+}
+
+/* ══════════════════════════════
+   시뮬레이터
+══════════════════════════════ */
+function populateSimSelect(){
+  var sel = document.getElementById('s_listing');
+  if(!sel) return;
+  var cur = sel.value;
+  var html = '<option value="">직접 입력</option>';
+  listings.forEach(function(l){
+    html += '<option value="'+l.id+'">'+esc(l.brand+' '+l.model+' · '+l.year+'년 · 월'+fmtMan(l.monthlyPayment))+'</option>';
+  });
+  sel.innerHTML = html;
+  if(cur && findListing(cur)) sel.value=cur;
+}
+function applySimListing(){
+  var id = document.getElementById('s_listing').value;
+  var l = id ? findListing(id) : null;
+  if(l){
+    document.getElementById('s_premium').value = (l.premium<0?'-':'')+fmt(Math.abs(l.premium||0));
+    document.getElementById('s_deposit').value = fmt(l.deposit||0);
+    document.getElementById('s_monthly').value = fmt(l.monthlyPayment||0);
+    document.getElementById('s_remain').value = fmt(l.remainingMonths||0);
+    if(!document.getElementById('s_transfer').value) document.getElementById('s_transfer').value='300,000';
+  }
+  calcSim();
+}
+function openSimFromListing(id){
+  closeDetail();
+  goPage('sim');
+  var sel=document.getElementById('s_listing');
+  sel.value=id;
+  applySimListing();
+}
+function resetSim(){
+  ['s_premium','s_deposit','s_monthly','s_remain'].forEach(function(i){ document.getElementById(i).value=''; });
+  document.getElementById('s_transfer').value='300,000';
+  document.getElementById('s_listing').value='';
+  calcSim();
+}
+function calcSim(){
+  var premium = parseAmt(document.getElementById('s_premium').value);
+  var deposit = parseAmt(document.getElementById('s_deposit').value);
+  var transfer = parseAmt(document.getElementById('s_transfer').value);
+  var monthly = parseAmt(document.getElementById('s_monthly').value);
+  var remain = parseAmt(document.getElementById('s_remain').value);
+
+  var initial = premium + deposit + transfer;
+  var remainPay = monthly * remain;
+  var total = initial + remainPay;
+  var avg = remain>0 ? Math.round(total/remain) : 0;
+
+  document.getElementById('simInitial').textContent = fmt(initial)+'원';
+  document.getElementById('simRemainPay').textContent = fmt(remainPay)+'원';
+  document.getElementById('simTotal').innerHTML = fmt(total)+'<small>원</small>';
+  document.getElementById('simAvg').textContent = fmt(avg)+'원';
+  document.getElementById('simMonthlyAvg').textContent = '월 평균 실부담 '+fmt(avg)+'원';
+
+  var cmp = document.getElementById('simCompare');
+  if(total>0 && remain>0){
+    cmp.innerHTML =
+      '신규 리스는 보통 <b>선수금 수백만원 + 취득세·초기 비용</b>이 들고 <b>36~60개월</b> 약정이 필요합니다. '+
+      '이 승계 건은 잔여 <b>'+remain+'개월</b>만 책임지면 되어 약정 부담이 짧고, 초기 인수비용은 <b>'+fmtMan(initial)+'</b> 수준입니다.'+
+      (premium<0 ? ' 여기에 <b>양도자 지원금 '+fmtMan(Math.abs(premium))+'</b>까지 받아 초기 부담이 더 줄어듭니다.' : '')+
+      ' 월 평균 실부담은 <b>'+fmt(avg)+'원</b>으로, 짧게 차량을 경험하거나 중도 해지 위약금을 피하려는 경우 유리합니다.';
+  } else {
+    cmp.innerHTML = '리스승계는 <b>선수금·초기비용 부담이 적고</b> 남은 계약기간만 책임지므로 <b>약정기간이 짧습니다.</b> 값을 입력하면 비교 내용이 표시됩니다.';
+  }
+}
+
+/* ── 키보드: ESC로 모달 닫기 ── */
+document.addEventListener('keydown', function(e){
+  if(e.key==='Escape') closeDetail();
+});
+
+/* ── 초기화 ── */
+(function init(){
+  initSelects();
+  loadData();
+  document.getElementById('s_transfer').value='300,000';
+  renderList();
+  populateSimSelect();
+  calcSim();
+})();
+</script>
+</body>
+</html>
